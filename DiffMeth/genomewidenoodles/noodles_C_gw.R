@@ -22,9 +22,10 @@ if(file.exists('noodles.C.Rda'))
 				if(class(noodles.C)=='GRanges')
 			noodles.C.loaded<-TRUE
 }
+
 if(!noodles.C.loaded)
 {
-	beddir<-'../../../bedfiles/'
+	beddir<-'../../../Methylation/bedfiles/'
 	noodle.length<-100
 	chrs<-nucl.chromosomes.hg19()
 	noodles.C<-prepare.uniform.noodles(chrs,noodle.length)

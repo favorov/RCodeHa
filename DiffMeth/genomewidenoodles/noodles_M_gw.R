@@ -24,7 +24,7 @@ if(file.exists('noodles.M.Rda'))
 }
 if(!noodles.M.loaded)
 {
-	beddir<-'../../../bedfiles/'
+	beddir<-'../../../Methylation/bedfiles/'
 	noodle.length<-1000
 	chrs<-nucl.chromosomes.hg19()
 	noodles.M<-prepare.uniform.noodles(chrs,noodle.length)
