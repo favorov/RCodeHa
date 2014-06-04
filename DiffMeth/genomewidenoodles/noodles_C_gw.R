@@ -12,7 +12,7 @@ if (!suppressWarnings(require('Differential.Coverage')))
 }
 
 noodles.C.loaded<-FALSE
-# we can the whole thing to noodles.1000.Rda
+# we can the whole thing to noodles.C.Rda
 if(file.exists('noodles.C.Rda'))
 {
 	loaded<-load('noodles.C.Rda')
