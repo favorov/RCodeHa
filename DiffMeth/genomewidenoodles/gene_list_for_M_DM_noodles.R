@@ -65,8 +65,11 @@ expanded.DM.M.noodles<-DM.M.noodles
 start(expanded.DM.M.noodles)<-pmax(0,start(DM.M.noodles)-flanks)
 end(expanded.DM.M.noodles)<-pmin(end(DM.M.noodles)+flanks,as.integer(seqlengths(DM.M.noodles)[as.character(seqnames(DM.M.noodles))]))
 
+message('DM expanded')
 #prepare gene TSS
-TSS<- genes(TxDb.Hsapiens.UCSC.hg19.knownGene)
+genelist<- genes(TxDb.Hsapiens.UCSC.hg19.knownGene)
+
+TSS<- genelist
 
 geneSymbols <- select(
 	org.Hs.eg.db,
@@ -83,4 +86,32 @@ start(TSS)<-tss.start
 end(TSS)<-tss.start
 
 #make overlap
+overlaps<-findOverlaps(expanded.DM.M.noodles,TSS)
+message('overlapped')
+
+DM.Genes.Indices.IsHyper <- tapply(expanded.DM.M.noodles[queryHits(overlaps)]$ishyper,subjectHits(overlaps),
+	function(li)
+	{	
+		vals<-unique(li)
+		if (length(vals)==1)
+			vals[1]
+		else NA
+	}
+	)
+
+DM.Gene.Indices <- as.integer(names(DM.Genes.Indices.IsHyper))
+
+DM.Genes<-genelist[DM.Gene.Indices]
+
+DM.Genes$SYMBOL<-TSS$SYMBOL[DM.Gene.Indices]
+
+DM.Genes$IsHyper<-as.logical(DM.Genes.Indices.IsHyper)
+
+message('mapped')
+
+DM.Genes.df<-as(DM.Genes,'data.frame')
+
+DM.Genes.df<-DM.Genes.df[order(DM.Genes.df$seqnames,DM.Genes.df$start),]
+
+write.table(DM.Genes.df,file='DM.Genes.by.M.noodles.tsv',sep='\t',row.names=FALSE)
 
