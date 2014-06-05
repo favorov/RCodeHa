@@ -11,18 +11,6 @@ if (!suppressWarnings(require('Differential.Coverage')))
 	library('Differential.Coverage')
 }
 
-if (!require('Homo.sapiens'))
-{
-  source("http://bioconductor.org/biocLite.R")
-  biocLite("Homo.sapiens")
-  library('Homo.sapiens')  
-}
-if (!require('org.Hs.eg.db'))
-{
-  source("http://bioconductor.org/biocLite.R")
-  biocLite('org.Hs.eg.db')
-  library('org.Hs.eg.db')  
-}
 
 flanks<-10000
 
@@ -55,59 +43,13 @@ if(!noodles.M.fisher.results.loaded)
 
 message('all loaded')
 
+
 DM.M.noodles.indices<-which(fisher.p.values*tests.number<0.05)
 DM.M.noodles<-noodles.M[DM.M.noodles.indices]
 DM.M.noodles$p.value<-fisher.p.values[DM.M.noodles.indices]
 DM.M.noodles$ishyper<-CI_95_L[DM.M.noodles.indices]>1
 
-expanded.DM.M.noodles<-DM.M.noodles
-#inflate DM noodles
-start(expanded.DM.M.noodles)<-pmax(0,start(DM.M.noodles)-flanks)
-end(expanded.DM.M.noodles)<-pmin(end(DM.M.noodles)+flanks,as.integer(seqlengths(DM.M.noodles)[as.character(seqnames(DM.M.noodles))]))
-
-message('DM expanded')
-#prepare gene TSS
-genelist<- genes(TxDb.Hsapiens.UCSC.hg19.knownGene)
-
-TSS<- genelist
-
-geneSymbols <- select(
-	org.Hs.eg.db,
-	keys=as.character(TSS$gene_id),
-	columns=c('SYMBOL'),
-	keytype='ENTREZID'
-)
-
-TSS$SYMBOL <- geneSymbols$SYMBOL
-
-tss.start<-ifelse(strand(TSS)=='+',start(TSS),end(TSS))
-
-start(TSS)<-tss.start
-end(TSS)<-tss.start
-
-#make overlap
-overlaps<-findOverlaps(expanded.DM.M.noodles,TSS)
-message('overlapped')
-
-DM.Genes.Indices.IsHyper <- tapply(expanded.DM.M.noodles[queryHits(overlaps)]$ishyper,subjectHits(overlaps),
-	function(li)
-	{	
-		vals<-unique(li)
-		if (length(vals)==1)
-			vals[1]
-		else NA
-	}
-	)
-
-DM.Gene.Indices <- as.integer(names(DM.Genes.Indices.IsHyper))
-
-DM.Genes<-genelist[DM.Gene.Indices]
-
-DM.Genes$SYMBOL<-TSS$SYMBOL[DM.Gene.Indices]
-
-DM.Genes$IsHyper<-as.logical(DM.Genes.Indices.IsHyper)
-
-message('mapped')
+DM.Genes<-gene.list.by.overlap(noodles=DM.M.noodles,flanks=flanks)
 
 DM.Genes.df<-as(DM.Genes,'data.frame')
 
