@@ -55,5 +55,5 @@ DM.Genes.df<-as(DM.Genes,'data.frame')
 
 DM.Genes.df<-DM.Genes.df[order(DM.Genes.df$seqnames,DM.Genes.df$start),]
 
-write.table(DM.Genes.df,file='DM.Genes.by.M.noodles.tsv',sep='\t',row.names=FALSE)
+write.table(DM.Genes.df,file='DM.Genes.short.by.M.noodles.tsv',sep='\t',row.names=FALSE)
 
