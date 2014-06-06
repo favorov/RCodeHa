@@ -98,3 +98,7 @@ DM.M.noodles$ishyper<-CI_95_L[DM.M.noodles.indices]>1
 #DM.M.noodles$met.ratio.tumors<-meth.in.tumors.ratio[DM.M.noodles.indices]
 DM.M.table<-as(DM.M.noodles,'data.frame')
 write.table(DM.M.table,file='DM.M.noodles.bed',quote=FALSE,row.names=FALSE)
+
+con<-file('DM.M.noodles.strict.bed')
+export(DM.M.noodles,con,'bed',ignore.strand=TRUE)
+close(con)
