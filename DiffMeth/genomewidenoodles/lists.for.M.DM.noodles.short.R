@@ -44,7 +44,7 @@ if(!noodles.M.fisher.results.loaded)
 message('all loaded')
 
 
-DM.M.noodles.indices<-which(fisher.p.values<0.05)
+DM.M.noodles.indices<-which(fisher.p.values*tests.number<0.05)
 DM.M.noodles<-noodles.M[DM.M.noodles.indices]
 DM.M.noodles$p.value<-fisher.p.values[DM.M.noodles.indices]
 DM.M.noodles$ishyper<-CI_95_L[DM.M.noodles.indices]>1
@@ -55,5 +55,23 @@ DM.Genes.df<-as(DM.Genes,'data.frame')
 
 DM.Genes.df<-DM.Genes.df[order(DM.Genes.df$seqnames,DM.Genes.df$start),]
 
-write.table(DM.Genes.df,file='DM.Genes.long.list.by.M.noodles.tsv',sep='\t',row.names=FALSE)
+write.table(DM.Genes.df,file='DM.Genes.short.by.M.noodles.tsv',sep='\t',row.names=FALSE)
+DM.M.noodles.indices<-which(fisher.p.values*tests.number<0.05)
+
+DM.M.noodles<-noodles.M[DM.M.noodles.indices]
+
+DM.M.noodles$p.value<-fisher.p.values[DM.M.noodles.indices]
+
+#DM.M.noodles$OR<-OR[DM.M.noodles.indices]
+#DM.M.noodles$CI_95_L<-CI_95_L[DM.M.noodles.indices]
+#DM.M.noodles$CI_95_H<-CI_95_H[DM.M.noodles.indices]
+DM.M.noodles$ishyper<-CI_95_L[DM.M.noodles.indices]>1
+#DM.M.noodles$met.ratio.norm<-meth.in.normals.ratio[DM.M.noodles.indices]
+#DM.M.noodles$met.ratio.tumors<-meth.in.tumors.ratio[DM.M.noodles.indices]
+DM.M.table<-as(DM.M.noodles,'data.frame')
+write.table(DM.M.table,file='DM.M.noodles.bed',quote=FALSE,row.names=FALSE)
+
+con<-file('DM.M.noodles.strict.bed')
+export(DM.M.noodles,con,'bed',ignore.strand=TRUE)
+close(con)
 
