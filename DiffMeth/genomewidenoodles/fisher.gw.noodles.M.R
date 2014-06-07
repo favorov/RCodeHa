@@ -60,7 +60,7 @@ if(!noodles.M.fisher.results.loaded)
 	CI_95_H<-numeric(tests.number)
 
 
-	foreach (rown in 1:tests.number) %dopar%
+	foreach (rown = 1:tests.number) %dopar%
 	{
 		cotable<-table(as.logical(noodles.M.methylation[rown,]),contrast)
 		if(nrow(cotable)==1)#nonmeth
