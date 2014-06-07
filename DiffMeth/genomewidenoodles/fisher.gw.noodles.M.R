@@ -71,15 +71,17 @@ if(!noodles.M.fisher.results.loaded)
 			OR[rown]<-NA
 			CI_95_L[rown]<-NA
 			CI_95_H[rown]<-NA
-			next
 		}
-		fisherres<-fisher.test(cotable)
-		fisher.p.values[rown]<-fisherres$p.value
-		meth.in.tumors.ratio[rown]<-cotable[2,2]/cotable[1,2]
-		meth.in.normals.ratio[rown]<-cotable[2,1]/cotable[1,1]
-		OR[rown]<-fisherres$estimate
-		CI_95_L[rown]<-fisherres$conf.int[1]
-		CI_95_H[rown]<-fisherres$conf.int[2]
+		else #calculate
+		{
+			fisherres<-fisher.test(cotable)
+			fisher.p.values[rown]<-fisherres$p.value
+			meth.in.tumors.ratio[rown]<-cotable[2,2]/cotable[1,2]
+			meth.in.normals.ratio[rown]<-cotable[2,1]/cotable[1,1]
+			OR[rown]<-fisherres$estimate
+			CI_95_L[rown]<-fisherres$conf.int[1]
+			CI_95_H[rown]<-fisherres$conf.int[2]
+		}
 	}
 	stopCluster(clust)
 	message('done\n')
