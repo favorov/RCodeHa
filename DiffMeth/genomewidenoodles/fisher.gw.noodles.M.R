@@ -1,9 +1,9 @@
-#if (!require('doParallel'))
-#{
-#	source("http://bioconductor.org/biocLite.R")
-#	biocLite('doParallel')
-#	library('doParallel')
-#}
+if (!require('doParallel'))
+{
+	source("http://bioconductor.org/biocLite.R")
+	biocLite('doParallel')
+	library('doParallel')
+}
 
 parallel.workers<-8
 
