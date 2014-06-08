@@ -54,7 +54,7 @@ if(!noodles.M.fisher.results.loaded)
 		worker.end<-min(worker.start+load.per.worker-1,tests.number)
 		for (rown in worker.start:worker.end)
 		{
-			cat(rown,'\n',file='log.txt',append=TRUE)
+			#cat(rown,'\n',file='log.txt',append=TRUE)
 			cotable<-table(as.logical(noodles.M.methylation[rown,]),contrast)
 			if(nrow(cotable)==1)#nonmeth
 			{
