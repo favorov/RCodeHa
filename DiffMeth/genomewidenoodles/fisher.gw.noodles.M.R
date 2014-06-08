@@ -5,7 +5,7 @@ if (!require('doParallel'))
 	library('doParallel')
 }
 
-parallel.workers<-20
+parallel.workers<-8
 
 noodles.M.loaded<-FALSE
 # we can the whole thing to noodles.M.Rda
@@ -52,27 +52,29 @@ if(!noodles.M.fisher.results.loaded)
 	{
 		worker.start<-1+load.per.worker*(worker-1)
 		worker.end<-min(worker.start+load.per.worker-1,tests.number)
+		
+		cat(worker,'%',worker.start,'-',worker.end,'\n',file='log.txt',append=TRUE)
 		for (rown in worker.start:worker.end)
 		{
-			#cat(rown,'\n',file='log.txt',append=TRUE)
+			#cat(worker,':',rown,'\n',file='log.txt',append=TRUE)
 			cotable<-table(as.logical(noodles.M.methylation[rown,]),contrast)
 			if(nrow(cotable)==1)#nonmeth
 			{
-				fisher.p.values[rown]<-1.
-				meth.in.tumors.ratio[rown]<-0
-				meth.in.normals.ratio[rown]<-0
-				OR[rown]<-NA
-				CI_95_L[rown]<-NA
-				CI_95_H[rown]<-NA
+				fisher.p.values[rown]<<-1.
+				meth.in.tumors.ratio[rown]<<-0
+				meth.in.normals.ratio[rown]<<-0
+				OR[rown]<<-NA
+				CI_95_L[rown]<<-NA
+				CI_95_H[rown]<<-NA
 				next
 			}
 			fisherres<-fisher.test(cotable)
-			fisher.p.values[rown]<-fisherres$p.value
-			meth.in.tumors.ratio[rown]<-cotable[2,2]/cotable[1,2]
-			meth.in.normals.ratio[rown]<-cotable[2,1]/cotable[1,1]
-			OR[rown]<-fisherres$estimate
-			CI_95_L[rown]<-fisherres$conf.int[1]
-			CI_95_H[rown]<-fisherres$conf.int[2]
+			fisher.p.values[rown]<<-fisherres$p.value
+			meth.in.tumors.ratio[rown]<<-cotable[2,2]/cotable[1,2]
+			meth.in.normals.ratio[rown]<<-cotable[2,1]/cotable[1,1]
+			OR[rown]<<-fisherres$estimate
+			CI_95_L[rown]<<-fisherres$conf.int[1]
+			CI_95_H[rown]<<-fisherres$conf.int[2]
 		}
 		1
 	}
