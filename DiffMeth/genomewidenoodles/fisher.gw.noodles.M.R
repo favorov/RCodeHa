@@ -59,21 +59,25 @@ if(!noodles.M.fisher.results.loaded)
 	CI_95_L<-numeric(tests.number)
 	CI_95_H<-numeric(tests.number)
 
+	load.per.worker<-tests.number%/%parallel.workers
 
-	foreach (rown = 1:tests.number) %dopar%
+	foreach (worker = 1:parallel.workers) %dopar%
 	{
-		cotable<-table(as.logical(noodles.M.methylation[rown,]),contrast)
-		if(nrow(cotable)==1)#nonmeth
+		worker.start<-1+load.per.worker*(worker-1)
+		worek.end<-min(worker.end+load.per.worker-1,tests.number)
+		for (rown in worker.start:worker.end)
 		{
-			fisher.p.values[rown]<-1.
-			meth.in.tumors.ratio[rown]<-0
-			meth.in.normals.ratio[rown]<-0
-			OR[rown]<-NA
-			CI_95_L[rown]<-NA
-			CI_95_H[rown]<-NA
-		}
-		else #calculate
-		{
+			cotable<-table(as.logical(noodles.M.methylation[rown,]),contrast)
+			if(nrow(cotable)==1)#nonmeth
+			{
+				fisher.p.values[rown]<-1.
+				meth.in.tumors.ratio[rown]<-0
+				meth.in.normals.ratio[rown]<-0
+				OR[rown]<-NA
+				CI_95_L[rown]<-NA
+				CI_95_H[rown]<-NA
+				next
+			}
 			fisherres<-fisher.test(cotable)
 			fisher.p.values[rown]<-fisherres$p.value
 			meth.in.tumors.ratio[rown]<-cotable[2,2]/cotable[1,2]
