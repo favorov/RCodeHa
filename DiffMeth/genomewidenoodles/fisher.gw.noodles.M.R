@@ -51,7 +51,7 @@ if(!noodles.M.fisher.results.loaded)
 	foreach (worker = 1:parallel.workers) %dopar%
 	{
 		worker.start<-1+load.per.worker*(worker-1)
-		worker.end<-min(worker.end+load.per.worker-1,tests.number)
+		worker.end<-min(worker.start+load.per.worker-1,tests.number)
 		for (rown in worker.start:worker.end)
 		{
 			cotable<-table(as.logical(noodles.M.methylation[rown,]),contrast)
