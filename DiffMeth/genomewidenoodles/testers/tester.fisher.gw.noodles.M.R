@@ -62,7 +62,7 @@ if(!noodles.M.fisher.results.loaded)
 
 	foreach (rown = 1:40) %dopar%
 	{
-		cat('<',rown,file='log.txt',append=TRUE)
+		cat('<',file='log.txt',append=TRUE)
 		cotable<-table(as.logical(noodles.M.methylation[rown,]),contrast)
 		if(nrow(cotable)==1)#nonmeth
 		{
@@ -83,7 +83,7 @@ if(!noodles.M.fisher.results.loaded)
 			CI_95_L[rown]<-fisherres$conf.int[1]
 			CI_95_H[rown]<-fisherres$conf.int[2]
 		}
-		cat('>',rown,file='log.txt',append=TRUE,sep='')
+		cat('>',file='log.txt',append=TRUE,sep='')
 	}
 	stopCluster(clust)
 	message('done\n')
