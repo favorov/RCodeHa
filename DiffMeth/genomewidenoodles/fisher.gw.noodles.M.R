@@ -54,6 +54,7 @@ if(!noodles.M.fisher.results.loaded)
 		worker.end<-min(worker.start+load.per.worker-1,tests.number)
 		for (rown in worker.start:worker.end)
 		{
+			cat(rown,'\n',file='log.txt',append=TRUE)
 			cotable<-table(as.logical(noodles.M.methylation[rown,]),contrast)
 			if(nrow(cotable)==1)#nonmeth
 			{
@@ -73,6 +74,7 @@ if(!noodles.M.fisher.results.loaded)
 			CI_95_L[rown]<-fisherres$conf.int[1]
 			CI_95_H[rown]<-fisherres$conf.int[2]
 		}
+		1
 	}
 	stopCluster(clust)
 	message('done\n')
