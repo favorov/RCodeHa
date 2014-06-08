@@ -1,9 +1,9 @@
-if (!require('doParallel'))
-{
-	source("http://bioconductor.org/biocLite.R")
-	biocLite('doParallel')
-	library('doParallel')
-}
+#if (!require('doParallel'))
+#{
+#	source("http://bioconductor.org/biocLite.R")
+#	biocLite('doParallel')
+#	library('doParallel')
+#}
 
 parallel.workers<-8
 
@@ -46,17 +46,17 @@ if(!noodles.M.fisher.results.loaded)
 	CI_95_L<-numeric(tests.number)
 	CI_95_H<-numeric(tests.number)
 
-	load.per.worker<-tests.number%/%parallel.workers
+	load.per.worker<-tests.number %/% parallel.workers
 
 	foreach (worker = 1:parallel.workers) %dopar%
 	{
 		worker.start<-1+load.per.worker*(worker-1)
 		worker.end<-min(worker.start+load.per.worker-1,tests.number)
 		
-		cat(worker,'%',worker.start,'-',worker.end,'\n',file='log.txt',append=TRUE)
+		if(2==worker)cat(worker,'%',worker.start,'-',worker.end,'\n',file='log.txt',append=TRUE)
 		for (rown in worker.start:worker.end)
 		{
-			#cat(worker,':',rown,'\n',file='log.txt',append=TRUE)
+			if(2==worker)cat(worker,':',rown,'\n',file='log.txt',append=TRUE)
 			cotable<-table(as.logical(noodles.M.methylation[rown,]),contrast)
 			if(nrow(cotable)==1)#nonmeth
 			{
