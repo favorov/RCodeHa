@@ -51,8 +51,8 @@ if(!noodles.M.fisher.results.loaded)
 	#			'OR'=numeric(0),'CI_95_L'=numeric(0),'CI_95_H'=numeric(0)
 
 	noodles.M.methylation=noodles.M.methylation[1:60000,]
-
-	fisher.resultee<-foreach (row=iter(noodles.M.methylation, by='row'),.combine=rbind,.multicombine=TRUE) %dopar%
+	#that's why we call it the test
+	fisher.resulte<-foreach (row=iter(noodles.M.methylation, by='row'),.combine=rbind,.multicombine=TRUE) %dopar%
 	{
 			cotable<-table(as.logical(row),contrast)
 			if(nrow(cotable)==1)#nonmeth
