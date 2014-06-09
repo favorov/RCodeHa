@@ -38,17 +38,9 @@ if(!noodles.M.fisher.results.loaded)
 	contrast<-logical(length(bed.ids))
 	contrast[grep('HN',bed.ids)]<-TRUE
 
-	#fisher.p.values<-numeric(tests.number)
-	#meth.in.normals.ratio<-numeric(tests.number)
-	#meth.in.tumors.ratio<-numeric(tests.number)
-	#OR<-numeric(tests.number)
-	#CI_95_L<-numeric(tests.number)
-	#CI_95_H<-numeric(tests.number)
-	#here are the names of the fields in the fisher.result dataframe
 
-
-	noodles.M.methylation=noodles.M.methylation[1:60000,]
-	#that's why we call it the test
+	#noodles.M.methylation=noodles.M.methylation[1:60000,]
+	#that's why we called it the test
 	tests.number<-dim(noodles.M.methylation)[1]
 
 	fisher.resulte<-foreach (row=iter(noodles.M.methylation, by='row')) %dopar%
