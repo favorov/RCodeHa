@@ -5,7 +5,7 @@ if (!require('doParallel'))
 	library('doParallel')
 }
 
-parallel.workers<-8
+parallel.workers<-20
 
 noodles.M.loaded<-FALSE
 # we can the whole thing to noodles.M.Rda
@@ -39,48 +39,32 @@ if(!noodles.M.fisher.results.loaded)
 	contrast[grep('HN',bed.ids)]<-TRUE
 
 	tests.number<-length(noodles.M)
-	fisher.p.values<-numeric(tests.number)
-	meth.in.normals.ratio<-numeric(tests.number)
-	meth.in.tumors.ratio<-numeric(tests.number)
-	OR<-numeric(tests.number)
-	CI_95_L<-numeric(tests.number)
-	CI_95_H<-numeric(tests.number)
+	#fisher.p.values<-numeric(tests.number)
+	#meth.in.normals.ratio<-numeric(tests.number)
+	#meth.in.tumors.ratio<-numeric(tests.number)
+	#OR<-numeric(tests.number)
+	#CI_95_L<-numeric(tests.number)
+	#CI_95_H<-numeric(tests.number)
+	#here are the names of the fields in the fisher.result dataframe
+
+	#fisheresult<-data.frame('fisher.p.values'=numeric(0),'meth.in.normals.ratio'=numeric(0),'meth.in.tumors.ratio'=numeric(0),
+	#			'OR'=numeric(0),'CI_95_L'=numeric(0),'CI_95_H'=numeric(0)
 
 	load.per.worker<-tests.number %/% parallel.workers
 
-	foreach (worker = 1:parallel.workers) %dopar%
+	fisher.resultee<-foreach (row=iter(noodles.M.methylation, by='row'),.combine=rbind,.multicombine=TRUE) %dopar%
 	{
-		worker.start<-1+load.per.worker*(worker-1)
-		worker.end<-min(worker.start+load.per.worker-1,tests.number)
-		
-		if(2==worker)cat(worker,'%',worker.start,'-',worker.end,'\n',file='log.txt',append=TRUE)
-		for (rown in worker.start:worker.end)
-		{
-			if(2==worker)cat(worker,':',rown,'\n',file='log.txt',append=TRUE)
-			cotable<-table(as.logical(noodles.M.methylation[rown,]),contrast)
+			cotable<-table(as.logical(row),contrast)
 			if(nrow(cotable)==1)#nonmeth
-			{
-				fisher.p.values[rown]<<-1.
-				meth.in.tumors.ratio[rown]<<-0
-				meth.in.normals.ratio[rown]<<-0
-				OR[rown]<<-NA
-				CI_95_L[rown]<<-NA
-				CI_95_H[rown]<<-NA
-				next
-			}
+				return(c(1,0,0,NA,NA,NA))	
 			fisherres<-fisher.test(cotable)
-			fisher.p.values[rown]<<-fisherres$p.value
-			meth.in.tumors.ratio[rown]<<-cotable[2,2]/cotable[1,2]
-			meth.in.normals.ratio[rown]<<-cotable[2,1]/cotable[1,1]
-			OR[rown]<<-fisherres$estimate
-			CI_95_L[rown]<<-fisherres$conf.int[1]
-			CI_95_H[rown]<<-fisherres$conf.int[2]
-		}
-		1
+			c(fisherres$p.value,cotable[2,2]/cotable[1,2],cotable[2,1]/cotable[1,1],fisherres$estimate,fisherres$conf.int[1],fisherres$conf.int[2])
 	}
 	stopCluster(clust)
 	message('done\n')
+	colnames(fisher.resulte)<-c('fisher.p.values','meth.in.normals.ratio','meth.in.tumors.ratio','OR','CI_95_L','CI_95_H')
+	fisher.noodles.M.result<-as(fisher.resulte,'data.frame')
 	message('Saving...\n')
-	save(file='noodles.M.fisher.results.Rda',list=c('fisher.p.values','tests.number','contrast','OR','CI_95_L','CI_95_H'))
+	save(file='noodles.M.fisher.results.Rda',list=c('fisher.results','tests.number','contrast'))
 }
 
