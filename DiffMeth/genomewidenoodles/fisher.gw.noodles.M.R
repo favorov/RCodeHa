@@ -11,15 +11,6 @@ if (!suppressWarnings(require('Differential.Coverage')))
 	library('Differential.Coverage')
 }
 
-if (!require('doParallel'))
-{
-	source("http://bioconductor.org/biocLite.R")
-	biocLite('doParallel')
-	library('doParallel')
-}
-
-parallel.workers<-20
-
 noodles.M.loaded<-FALSE
 # we can the whole thing to noodles.M.Rda
 if(file.exists('noodles.M.Rda'))
@@ -44,8 +35,6 @@ if(file.exists('noodles.M.fisher.results.Rda'))
 
 if(!noodles.M.fisher.results.loaded)
 {
-	clust<-makeCluster(parallel.workers)
-	registerDoParallel(clust)
 	message('fishering')
 
 	contrast<-logical(length(bed.ids))
@@ -60,7 +49,7 @@ if(!noodles.M.fisher.results.loaded)
 	CI_95_H<-numeric(tests.number)
 
 
-	foreach (rown = 1:tests.number) %dopar%
+	for (rown in 1:tests.number) %dopar%
 	{
 		cotable<-table(as.logical(noodles.M.methylation[rown,]),contrast)
 		if(nrow(cotable)==1)#nonmeth
