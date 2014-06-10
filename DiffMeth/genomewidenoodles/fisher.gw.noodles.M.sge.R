@@ -1,23 +1,29 @@
 #the script work without parrallel if you just run it
-#still if the first parameter is 'qsub':
-#host: qsub host #workers-no
-#worker: qsub worker #worker #workers-no
-#combine: qsub combiner #worker-no
+#worker: sge worker #workers-no (gets ites worker id from SGE_TASK_ID)
+#combine: sge combiner #worker-no
 
-noodles.M.loaded<-FALSE
-# we can the whole thing to noodles.M.Rda
-if(file.exists('noodles.M.Rda'))
+args <- commandArgs(trailingOnly = TRUE)
+
+if(length(args) > 0)
 {
-	loaded<-load('noodles.M.Rda')
-	if ('noodles.M.methylation' %in% loaded) 
-		if (class(noodles.M.methylation)=='data.frame')
-			if ('noodles.M' %in% loaded)
-				if(class(noodles.M)=='GRanges')
-			noodles.M.loaded<-TRUE
-}
-if(!noodles.M.loaded)
-{
-	source('prepare.gw.noodles.M.R')
+	if(length(args)!=3)
+		stop('Argument nomber is not 3')
+	if (args[1] != 'sge') 
+		stop('First argument is unknown!')
+	if(suppressWarnings(is.na(workers.no<-as.integer(args[3]))))
+		stop('Third arg is not number')
+	if(workers.no<2 || workers.no>100)
+		stop('Third arg is a strange number')
+	if('worker'==args[2])
+		i.am.worker<-TRUE
+	else
+	{
+		if('combiner'==args[2])
+			i.am.worker<-FALSE
+		else
+			stop('Second arg is not a \'worker\' or \'combiner\'')
+	}
+	sge<-TRUE
 }
 
 noodles.M.fisher.results.loaded<-FALSE
@@ -25,33 +31,57 @@ noodles.M.fisher.results.loaded<-FALSE
 if(file.exists('noodles.M.fisher.results.Rda'))
 	if ('fisher.p.values' %in% load('noodles.M.fisher.results.Rda'))
 			noodles.M.fisher.results.loaded<-TRUE
+#if we loaded it, we do nothing.
 
 if(!noodles.M.fisher.results.loaded)
-{
-	#noodles.M.methylation=noodles.M.methylation[1:60000,] #test
-	message('fishering')
 
-	contrast<-logical(length(bed.ids))
-	contrast[grep('HN',bed.ids)]<-TRUE
-
-	tests.number<-dim(noodles.M.methylation)[1]
-
-	fisher.noodles.M.result<-data.frame('fisher.p.values'=numeric(tests.number),'meth.in.normals.ratio'=numeric(tests.number),'meth.in.tumors.ratio'=numeric(tests.number),
-		'OR'=numeric(tests.number),'CI_95_L'=numeric(tests.number),'CI_95_H'=numeric(tests.number))
-
-	for (rown in 1:tests.number) 	
+	if(!sge || i.am.worker)
 	{
-		cotable<-table(as.logical(noodles.M.methylation[rown,]),contrast)
-		if(nrow(cotable)==1)#nonmeth
+		#we need this to load
+		noodles.M.loaded<-FALSE
+		# we can the whole thing to noodles.M.Rda
+		if(file.exists('noodles.M.Rda'))
 		{
-			fisher.noodles.M.result[rown,]<-c(1,0,0,NA,NA,NA)
-			next
+			loaded<-load('noodles.M.Rda')
+			if ('noodles.M.methylation' %in% loaded) 
+				if (class(noodles.M.methylation)=='data.frame')
+					if ('noodles.M' %in% loaded)
+						if(class(noodles.M)=='GRanges')
+					noodles.M.loaded<-TRUE
 		}
-		fisherres<-fisher.test(cotable)
-		fisher.noodles.M.result[rown,]<-c(fisherres$p.value,cotable[2,2]/cotable[1,2],cotable[2,1]/cotable[1,1],fisherres$estimate,fisherres$conf.int[1],fisherres$conf.int[2])
+		if(!noodles.M.loaded)
+		{
+			source('prepare.gw.noodles.M.R')
+		}
 	}
-	message('done\n')
-	message('Saving...\n')
-	save(file='noodles.M.fisher.results.Rda',list=c('fisher.noodles.M.result','tests.number','contrast'))
+
+
+	{
+		#noodles.M.methylation=noodles.M.methylation[1:60000,] #test
+		message('fishering')
+
+		contrast<-logical(length(bed.ids))
+		contrast[grep('HN',bed.ids)]<-TRUE
+
+		tests.number<-dim(noodles.M.methylation)[1]
+
+		fisher.noodles.M.result<-data.frame('fisher.p.values'=numeric(tests.number),'meth.in.normals.ratio'=numeric(tests.number),'meth.in.tumors.ratio'=numeric(tests.number),
+			'OR'=numeric(tests.number),'CI_95_L'=numeric(tests.number),'CI_95_H'=numeric(tests.number))
+
+		for (rown in 1:tests.number) 	
+		{
+			cotable<-table(as.logical(noodles.M.methylation[rown,]),contrast)
+			if(nrow(cotable)==1)#nonmeth
+			{
+				fisher.noodles.M.result[rown,]<-c(1,0,0,NA,NA,NA)
+				next
+			}
+			fisherres<-fisher.test(cotable)
+			fisher.noodles.M.result[rown,]<-c(fisherres$p.value,cotable[2,2]/cotable[1,2],cotable[2,1]/cotable[1,1],fisherres$estimate,fisherres$conf.int[1],fisherres$conf.int[2])
+		}
+		message('done\n')
+		message('Saving...\n')
+		save(file='noodles.M.fisher.results.Rda',list=c('fisher.noodles.M.result','tests.number','contrast'))
+	}
 }
 
