@@ -1,27 +1,28 @@
-noodles.M.loaded<-FALSE
-# we can the whole thing to noodles.M.Rda
-if(file.exists('noodles.M.Rda'))
-{
-	loaded<-load('noodles.M.Rda')
-	if ('noodles.M.methylation' %in% loaded) 
-		if (class(noodles.M.methylation)=='data.frame')
-			if ('noodles.M' %in% loaded)
-				if(class(noodles.M)=='GRanges')
-			noodles.M.loaded<-TRUE
-}
-if(!noodles.M.loaded)
-{
-	source('prepare.gw.noodles.M.R')
-}
-
 noodles.M.fisher.results.loaded<-FALSE
 # we can the whole thing to CpGIs.with.methylation.Rda
 if(file.exists('noodles.M.fisher.results.Rda'))
 	if ('fisher.p.values' %in% load('noodles.M.fisher.results.Rda'))
 			noodles.M.fisher.results.loaded<-TRUE
+#if we loaded it, we do nothing
 
 if(!noodles.M.fisher.results.loaded)
 {
+	noodles.M.loaded<-FALSE
+	# we can the whole thing to noodles.M.Rda
+	if(file.exists('noodles.M.Rda'))
+	{
+		loaded<-load('noodles.M.Rda')
+		if ('noodles.M.methylation' %in% loaded) 
+			if (class(noodles.M.methylation)=='data.frame')
+				if ('noodles.M' %in% loaded)
+					if(class(noodles.M)=='GRanges')
+				noodles.M.loaded<-TRUE
+	}
+	if(!noodles.M.loaded)
+	{
+		source('prepare.gw.noodles.M.R')
+	}
+
 	#noodles.M.methylation=noodles.M.methylation[1:60000,] #test
 	message('fishering')
 
