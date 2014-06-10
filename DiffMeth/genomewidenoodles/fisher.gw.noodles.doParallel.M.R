@@ -1,3 +1,12 @@
+if (!require('doParallel'))
+{
+	source("http://bioconductor.org/biocLite.R")
+	biocLite('doParallel')
+	library('doParallel')
+}
+
+parallel.workers<-20
+
 noodles.M.loaded<-FALSE
 # we can the whole thing to noodles.M.Rda
 if(file.exists('noodles.M.Rda'))
@@ -22,6 +31,8 @@ if(file.exists('noodles.M.fisher.results.Rda'))
 
 if(!noodles.M.fisher.results.loaded)
 {
+	clust<-makeCluster(parallel.workers)
+	registerDoParallel(clust)
 	message('fishering')
 
 	contrast<-logical(length(bed.ids))
@@ -32,7 +43,7 @@ if(!noodles.M.fisher.results.loaded)
 	#that's why we called it the test
 	tests.number<-dim(noodles.M.methylation)[1]
 
-	for (rown in 1:tests.number)
+	fisher.resulte<-foreach (row=iter(noodles.M.methylation, by='row')) %dopar%
 	{
 			cotable<-table(as.logical(row),contrast)
 			if(nrow(cotable)==1)#nonmeth
