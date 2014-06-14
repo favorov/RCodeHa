@@ -38,36 +38,33 @@ if(!noodles.M.fisher.results.loaded)
 	contrast<-logical(length(bed.ids))
 	contrast[grep('HN',bed.ids)]<-TRUE
 
+	tests.number<-length(noodles.M)
+	#fisher.p.values<-numeric(tests.number)
+	#meth.in.normals.ratio<-numeric(tests.number)
+	#meth.in.tumors.ratio<-numeric(tests.number)
+	#OR<-numeric(tests.number)
+	#CI_95_L<-numeric(tests.number)
+	#CI_95_H<-numeric(tests.number)
+	#here are the names of the fields in the fisher.result dataframe
+
+	#fisheresult<-data.frame('fisher.p.values'=numeric(0),'meth.in.normals.ratio'=numeric(0),'meth.in.tumors.ratio'=numeric(0),
+	#			'OR'=numeric(0),'CI_95_L'=numeric(0),'CI_95_H'=numeric(0)
 
 	#noodles.M.methylation=noodles.M.methylation[1:60000,]
-	#that's why we called it the test
-	tests.number<-dim(noodles.M.methylation)[1]
-
-	fisher.resulte<-foreach (row=iter(noodles.M.methylation, by='row')) %dopar%
+	#that's why we call it the test
+	fisher.resulte<-foreach (row=iter(noodles.M.methylation, by='row'),.combine=rbind,.multicombine=TRUE) %dopar%
 	{
 			cotable<-table(as.logical(row),contrast)
 			if(nrow(cotable)==1)#nonmeth
-			{
-				#return(data.frame('fisher.p.values'=1,'meth.in.normals.ratio'=0,'meth.in.tumors.ratio'=0,'OR'=NA,'CI_95_L'=NA,'CI_95_H'=NA))	
-				#fisher.noodles.M.result[rown,]<<-c(1,0,0,NA,NA,NA)
-				return(c(1,0,0,NA,NA,NA))
-			}
+				return(c(1,0,0,NA,NA,NA))	
 			fisherres<-fisher.test(cotable)
-			return(data.frame('fisher.p.values'=fisherres$p.value,'meth.in.normals.ratio'=cotable[2,2]/cotable[1,2],'meth.in.tumors.ratio'=cotable[2,1]/cotable[1,1],'OR'=fisherres$estimate,'CI_95_L'=fisherres$conf.int[1],'CI_95_H'=fisherres$conf.int[2]))	
-			#fisher.noodles.M.result[rown,]<<-c(fisherres$p.value,cotable[2,2]/cotable[1,2],cotable[2,1]/cotable[1,1],fisherres$estimate,fisherres$conf.int[1],fisherres$conf.int[2])
-			return(c(fisherres$p.value,cotable[2,2]/cotable[1,2],cotable[2,1]/cotable[1,1],fisherres$estimate,fisherres$conf.int[1],fisherres$conf.int[2]))
+			c(fisherres$p.value,cotable[2,2]/cotable[1,2],cotable[2,1]/cotable[1,1],fisherres$estimate,fisherres$conf.int[1],fisherres$conf.int[2])
 	}
 	stopCluster(clust)
-	message('copying')
-	fisher.noodles.M.result<-data.frame('fisher.p.values'=numeric(tests.number),'meth.in.normals.ratio'=numeric(tests.number),'meth.in.tumors.ratio'=numeric(tests.number),
-		'OR'=numeric(tests.number),'CI_95_L'=numeric(tests.number),'CI_95_H'=numeric(tests.number))
-
-	for(rown in 1:tests.number)
-	{
-		fisher.noodles.M.result[rown,]=fisher.resulte[[rown]]
-	}
-
+	message('done\n')
+	colnames(fisher.resulte)<-c('fisher.p.values','meth.in.normals.ratio','meth.in.tumors.ratio','OR','CI_95_L','CI_95_H')
+	fisher.noodles.M.result<-as(fisher.resulte,'data.frame')
 	message('Saving...\n')
-	save(file='noodles.M.fisher.results.Rda',list=c('fisher.noodles.M.result','tests.number','contrast'))
+	save(file='noodles.M.fisher.results.Rda',list=c('fisher.results','tests.number','contrast'))
 }
 
