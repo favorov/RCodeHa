@@ -38,20 +38,12 @@ if(!noodles.M.fisher.results.loaded)
 	contrast<-logical(length(bed.ids))
 	contrast[grep('HN',bed.ids)]<-TRUE
 
-	tests.number<-length(noodles.M)
-	#fisher.p.values<-numeric(tests.number)
-	#meth.in.normals.ratio<-numeric(tests.number)
-	#meth.in.tumors.ratio<-numeric(tests.number)
-	#OR<-numeric(tests.number)
-	#CI_95_L<-numeric(tests.number)
-	#CI_95_H<-numeric(tests.number)
-	#here are the names of the fields in the fisher.result dataframe
-
-	#fisheresult<-data.frame('fisher.p.values'=numeric(0),'meth.in.normals.ratio'=numeric(0),'meth.in.tumors.ratio'=numeric(0),
-	#			'OR'=numeric(0),'CI_95_L'=numeric(0),'CI_95_H'=numeric(0)
+		#fisheresult<-data.frame('fisher.p.values'=numeric(0),'meth.in.normals.ratio'=numeric(0),'meth.in.tumors.ratio'=numeric(0),'OR'=numeric(0),'CI_95_L'=numeric(0),'CI_95_H'=numeric(0)
 
 	#noodles.M.methylation=noodles.M.methylation[1:60000,]
 	#that's why we call it the test
+	tests.number<-dim(noodles.M.methylation)[1]
+
 	fisher.resulte<-foreach (row=iter(noodles.M.methylation, by='row'),.combine=rbind,.multicombine=TRUE) %dopar%
 	{
 			cotable<-table(as.logical(row),contrast)
@@ -63,8 +55,8 @@ if(!noodles.M.fisher.results.loaded)
 	stopCluster(clust)
 	message('done\n')
 	colnames(fisher.resulte)<-c('fisher.p.values','meth.in.normals.ratio','meth.in.tumors.ratio','OR','CI_95_L','CI_95_H')
-	fisher.noodles.M.result<-as(fisher.resulte,'data.frame')
+	fisher.noodles.M.result<-as.data.frame(fisher.resulte)
 	message('Saving...\n')
-	save(file='noodles.M.fisher.results.Rda',list=c('fisher.results','tests.number','contrast'))
+	save(file='noodles.M.fisher.results.Rda',list=c('fisher.noodles.M.result','tests.number','contrast'))
 }
 
