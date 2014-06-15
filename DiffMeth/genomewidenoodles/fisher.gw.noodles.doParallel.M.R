@@ -55,6 +55,7 @@ if(!noodles.M.fisher.results.loaded)
 	stopCluster(clust)
 	message('done\n')
 	colnames(fisher.resulte)<-c('fisher.p.values','meth.in.normals.ratio','meth.in.tumors.ratio','OR','CI_95_L','CI_95_H')
+	rownames(fisher.resulte)<-NULL
 	fisher.noodles.M.result<-as.data.frame(fisher.resulte)
 	message('Saving...\n')
 	save(file='noodles.M.fisher.results.Rda',list=c('fisher.noodles.M.result','tests.number','contrast'))
