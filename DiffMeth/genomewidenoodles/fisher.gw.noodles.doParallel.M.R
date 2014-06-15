@@ -40,7 +40,7 @@ if(!noodles.M.fisher.results.loaded)
 
 		#fisheresult<-data.frame('fisher.p.values'=numeric(0),'meth.in.normals.ratio'=numeric(0),'meth.in.tumors.ratio'=numeric(0),'OR'=numeric(0),'CI_95_L'=numeric(0),'CI_95_H'=numeric(0)
 
-	#noodles.M.methylation=noodles.M.methylation[1:60000,]
+	noodles.M.methylation=noodles.M.methylation[1:60000,]
 	#that's why we call it the test
 	tests.number<-dim(noodles.M.methylation)[1]
 
@@ -55,6 +55,7 @@ if(!noodles.M.fisher.results.loaded)
 	stopCluster(clust)
 	message('done\n')
 	colnames(fisher.resulte)<-c('fisher.p.values','meth.in.normals.ratio','meth.in.tumors.ratio','OR','CI_95_L','CI_95_H')
+	rownames(fisher.resulte)<-NULL
 	fisher.noodles.M.result<-as.data.frame(fisher.resulte)
 	message('Saving...\n')
 	save(file='noodles.M.fisher.results.Rda',list=c('fisher.noodles.M.result','tests.number','contrast'))
