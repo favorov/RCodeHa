@@ -40,7 +40,7 @@ if(!noodles.M.fisher.results.loaded)
 
 		#fisheresult<-data.frame('fisher.p.values'=numeric(0),'meth.in.normals.ratio'=numeric(0),'meth.in.tumors.ratio'=numeric(0),'OR'=numeric(0),'CI_95_L'=numeric(0),'CI_95_H'=numeric(0)
 
-	#noodles.M.methylation=noodles.M.methylation[1:60000,]
+	noodles.M.methylation=noodles.M.methylation[1:60000,]
 	#that's why we call it the test
 	tests.number<-dim(noodles.M.methylation)[1]
 
