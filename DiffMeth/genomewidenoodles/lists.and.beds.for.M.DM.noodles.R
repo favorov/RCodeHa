@@ -76,6 +76,28 @@ con<-file('DM.M.noodles.bonf.strict.bed')
 export(DM.M.noodles,con,'bed',ignore.strand=TRUE)
 close(con)
 
+#bonferroni with flanks 100000
+message('bonferroni,flanks 100000')
+
+DM.Genes<-gene.list.by.overlap(noodles=DM.M.noodles,flanks=100000)
+
+DM.Genes.df<-as(DM.Genes,'data.frame')
+
+DM.Genes.df<-DM.Genes.df[order(DM.Genes.df$seqnames,DM.Genes.df$start),]
+
+write.table(DM.Genes.df,file='DM.M.noodles.bonf.adjacent.genes.100000.tsv',sep='\t',row.names=FALSE,quote=FALSE)
+
+#bonferroni with flanks 1000000
+message('bonferroni,flanks 1000000')
+
+DM.Genes<-gene.list.by.overlap(noodles=DM.M.noodles,flanks=1000000)
+
+DM.Genes.df<-as(DM.Genes,'data.frame')
+
+DM.Genes.df<-DM.Genes.df[order(DM.Genes.df$seqnames,DM.Genes.df$start),]
+
+write.table(DM.Genes.df,file='DM.M.noodles.bonf.adjacent.genes.1000000.tsv',sep='\t',row.names=FALSE,quote=FALSE)
+
 #fdr
 message('fdr')
 DM.M.noodles.indices<-which(p.adjust(fisher.noodles.M.result$fisher.p.values,method='fdr')<0.1)
@@ -98,4 +120,27 @@ write.table(DM.M.table,file='DM.M.noodles.fdr.bed',quote=FALSE,row.names=FALSE)
 con<-file('DM.M.noodles.fdr.strict.bed')
 export(DM.M.noodles,con,'bed',ignore.strand=TRUE)
 close(con)
+
+#fdr with no flanks
+message('fdr/no flanks')
+
+DM.Genes<-gene.list.by.overlap(noodles=DM.M.noodles,flanks=0)
+
+DM.Genes.df<-as(DM.Genes,'data.frame')
+
+DM.Genes.df<-DM.Genes.df[order(DM.Genes.df$seqnames,DM.Genes.df$start),]
+
+write.table(DM.Genes.df,file='DM.M.noodles.fdr.adjacent.genes.noflanks.tsv',sep='\t',row.names=FALSE,quote=FALSE)
+
+#fdr with 100 000 flanks
+message('fdr/100 000 flanks')
+
+DM.Genes<-gene.list.by.overlap(noodles=DM.M.noodles,flanks=100000)
+
+DM.Genes.df<-as(DM.Genes,'data.frame')
+
+DM.Genes.df<-DM.Genes.df[order(DM.Genes.df$seqnames,DM.Genes.df$start),]
+
+write.table(DM.Genes.df,file='DM.M.noodles.fdr.adjacent.genes.100000.tsv',sep='\t',row.names=FALSE,quote=FALSE)
+
 
