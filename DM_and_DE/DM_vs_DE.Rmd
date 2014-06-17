@@ -36,22 +36,36 @@ dminde<-dm$SYMBOL %in% de.and.dm
 
 ### DE vs DM
 
+Comparing the probability of DE for DM genes and for all the non-DM DE genes.
+
 ```{r} 
 boxplot(de$PPDE~deindm,main="Probability of DE for DM and for other DE genes", 
      ylab="PPDE", xlab="In DM list")
 ```
 
-Let's compare the two sets by Wilcoxon test. The difference is not significant (p-value=`r wilcox.test(de$PPDE~deindm)$p.value`)
+The Wilcoxon test does not show significant difference (p-value=`r wilcox.test(de$PPDE~deindm)$p.value`)
 
-Each dm gene is charaterised by the p-value (the closer to 0, the more oprobable is DM). Lets's compare the value for the genes in the dm.and.de intersection and for the other genes.
+The same for fold DE change (PostFC)
+
+
+```{r} 
+boxplot(de$PostFC~deindm,main="Fold of of DE for DM and for other DE genes", 
+     ylab="PostFC", xlab="In DM list")
+```
+
+The Wilcoxon test does not show significant difference (p-value=`r wilcox.test(de$PostFC~deindm)$p.value`)
 
 ### DM vs DE
+Each dm gene is charaterised by the p-value (the closer to 0, the more oprobable is DM). Lets's compare the value for the genes in the dm.and.de intersection and for the other genes.
+
 ```{r} 
-boxplot(dm$p.value~dminde,main="Probability of DM for DE and for other DE genes", 
+boxplot(dm$p.value~dminde,main="Probability of DM for DE and for other DM genes", 
      ylab="p-value", xlab="In DE list")
 ```
 
 Not significant, again (p-value=`r wilcox.test(dm$p.value~dminde)$p.value`)
+
+
 
 ### Direction of DE and DM 
 
@@ -96,13 +110,24 @@ boxplot(de$PPDE~deindm,main="Probability of DE for DM and for other DE genes",
      ylab="PPDE", xlab="In DM list")
 ```
 
-Let's compare the two sets by Wilcoxon test. The difference is not significant (p-value=`r wilcox.test(de$PPDE~deindm)$p.value`)
+The Wilcoxon test does not show significant difference (p-value=`r wilcox.test(de$PPDE~deindm)$p.value`)
+
+The same for fold DE change (PostFC)
+
+
+```{r} 
+boxplot(de$PostFC~deindm,main="Fold of of DE for DM and for other DE genes", 
+     ylab="PostFC", xlab="In DM list")
+```
+
+The Wilcoxon test does not show significant difference (p-value=`r wilcox.test(de$PostFC~deindm)$p.value`)
+
+### DM vs DE
 
 Each dm gene is charaterised by the p-value (the closer to 0, the more oprobable is DM). Lets's compare the value for the genes in the dm.and.de intersection and for the other genes.
 
-### DM vs DE
 ```{r} 
-boxplot(dm$p.value~dminde,main="Probability of DM for DE and for other DE genes", 
+boxplot(dm$p.value~dminde,main="Probability of DM for DE and for other DM genes", 
      ylab="p-value", xlab="In DE list")
 ```
 
@@ -150,13 +175,23 @@ boxplot(de$PPDE~deindm,main="Probability of DE for DM and for other DE genes",
      ylab="PPDE", xlab="In DM list")
 ```
 
-Let's compare the two sets by Wilcoxon test. The difference is not significant (p-value=`r wilcox.test(de$PPDE~deindm)$p.value`)
+The Wilcoxon test does not show significant difference (p-value=`r wilcox.test(de$PPDE~deindm)$p.value`)
 
-Each dm gene is charaterised by the p-value (the closer to 0, the more oprobable is DM). Lets's compare the value for the genes in the dm.and.de intersection and for the other genes.
+The same for fold DE change (PostFC)
+
+
+```{r} 
+boxplot(de$PostFC~deindm,main="Fold of of DE for DM and for other DE genes", 
+     ylab="PostFC", xlab="In DM list")
+```
+
+The Wilcoxon test does not show significant difference (p-value=`r wilcox.test(de$PostFC~deindm)$p.value`)
 
 ### DM vs DE
+Each dm gene is charaterised by the p-value (the closer to 0, the more oprobable is DM). Lets's compare the value for the genes in the dm.and.de intersection and for the other genes.
+
 ```{r} 
-boxplot(dm$p.value~dminde,main="Probability of DM for DE and for other DE genes", 
+boxplot(dm$p.value~dminde,main="Probability of DM for DE and for other DM genes", 
      ylab="p-value", xlab="In DE list")
 ```
 
@@ -204,13 +239,23 @@ boxplot(de$PPDE~deindm,main="Probability of DE for DM and for other DE genes",
      ylab="PPDE", xlab="In DM list")
 ```
 
-Let's compare the two sets by Wilcoxon test. The difference is not significant (p-value=`r wilcox.test(de$PPDE~deindm)$p.value`)
+The Wilcoxon test does not show significant difference (p-value=`r wilcox.test(de$PPDE~deindm)$p.value`)
 
-Each dm gene is charaterised by the p-value (the closer to 0, the more oprobable is DM). Lets's compare the value for the genes in the dm.and.de intersection and for the other genes.
+The same for fold DE change (PostFC)
+
+
+```{r} 
+boxplot(de$PostFC~deindm,main="Fold of of DE for DM and for other DE genes", 
+     ylab="PostFC", xlab="In DM list")
+```
+
+The Wilcoxon test does not show significant difference (p-value=`r wilcox.test(de$PostFC~deindm)$p.value`)
 
 ### DM vs DE
+Each dm gene is charaterised by the p-value (the closer to 0, the more oprobable is DM). Lets's compare the value for the genes in the dm.and.de intersection and for the other genes.
+
 ```{r} 
-boxplot(dm$p.value~dminde,main="Probability of DM for DE and for other DE genes", 
+boxplot(dm$p.value~dminde,main="Probability of DM for DE and for other DM genes", 
      ylab="p-value", xlab="In DE list")
 ```
 
@@ -258,13 +303,24 @@ boxplot(de$PPDE~deindm,main="Probability of DE for DM and for other DE genes",
      ylab="PPDE", xlab="In DM list")
 ```
 
-Let's compare the two sets by Wilcoxon test. The difference is not significant (p-value=`r wilcox.test(de$PPDE~deindm)$p.value`)
+The Wilcoxon test does not show significant difference (p-value=`r wilcox.test(de$PPDE~deindm)$p.value`)
+
+The same for fold DE change (PostFC)
+
+
+```{r} 
+boxplot(de$PostFC~deindm,main="Fold of of DE for DM and for other DE genes", 
+     ylab="PostFC", xlab="In DM list")
+```
+
+The Wilcoxon test does not show significant difference (p-value=`r wilcox.test(de$PostFC~deindm)$p.value`)
+
+### DM vs DE
 
 Each dm gene is charaterised by the p-value (the closer to 0, the more oprobable is DM). Lets's compare the value for the genes in the dm.and.de intersection and for the other genes.
 
-### DM vs DE
 ```{r} 
-boxplot(dm$p.value~dminde,main="Probability of DM for DE and for other DE genes", 
+boxplot(dm$p.value~dminde,main="Probability of DM for DE and for other DM genes", 
      ylab="p-value", xlab="In DE list")
 ```
 
@@ -311,11 +367,22 @@ boxplot(de$PPDE~deindm,main="Probability of DE for DM and for other DE genes",
      ylab="PPDE", xlab="In DM list")
 ```
 
-Let's compare the two sets by Wilcoxon test. The difference is not significant (p-value=`r wilcox.test(de$PPDE~deindm)$p.value`)
+The Wilcoxon test does not show significant difference (p-value=`r wilcox.test(de$PPDE~deindm)$p.value`)
+
+The same for fold DE change (PostFC)
+
+
+```{r} 
+boxplot(de$PostFC~deindm,main="Fold of of DE for DM and for other DE genes", 
+     ylab="PostFC", xlab="In DM list")
+```
+
+The Wilcoxon test does not show significant difference (p-value=`r wilcox.test(de$PostFC~deindm)$p.value`)
+
+### DM vs DE
 
 Each dm gene is charaterised by the p-value (the closer to 0, the more oprobable is DM). Lets's compare the value for the genes in the dm.and.de intersection and for the other genes.
 
-### DM vs DE
 ```{r} 
 boxplot(dm$p.value~dminde,main="Probability of DM for DE and for other DE genes", 
      ylab="p-value", xlab="In DE list")
