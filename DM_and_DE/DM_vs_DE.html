@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>An attempt to combine DE and DM data in the </title>
+
+
+
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<h1>An attempt to combine DE and DM data in the </h1>
+
+<h2>Alexander Favorov  </h2>
+
+<h3>17 Jun 2014</h3>
+
+<p>First, we load tho sets of genes: those that are near (+-10000) the differetially methylated intervals (dm, 1372 genes) and those that are diferentially expressed (de, 3761 genes.
+their intersection is de.and.dm and its length is 149.</p>
+
+<p>Each de gene is charaterised by the probability to be DE (PPDE). Lets&#39;s compare the value for the genes in the dm.and.de intersection and for the other genes.</p>
+
+<h3>DE vs DM</h3>
+
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfgAAAH4CAMAAACR9g9NAAAArlBMVEX9/v0AAAAAADkAAGUAOTkAOY8AZo8AZrU5AAA5ADk5AGU5OQA5OY85ZmU5Zo85ZrU5j485j9plAABlADllAGVlOTllOY9lZjllZmVlZrVlj49ltbVltf2POQCPOTmPOWWPZgCPZo+PjzmPj2WPtY+P27WP29qP2/21ZgC1Zjm1tWW124+1/rW1/tq1/v3ajznaj2Xa24/a/rXa/tra/v39tWX924/9/rX9/tr9/v1aCcTQAAAAOnRSTlP///////////////////////////////////////////////////////////////////////////8AN8D/CgAAAAlwSFlzAAALEgAACxIB0t1+/AAAEFRJREFUeJztnQub4rYVQMNsp5B025RJ2qQtbNI26dA8liYZGPz//1gt2QbMw4MeSLq+53xfsoPBukIHPcHWJxWo5JPcGYA8IF4piFcK4pWCeKUgXimIVwrilYJ4pSBeKYhXCuKVgnilIF4piFcK4pWCeKUgXimIVwrilYJ4pSBeKYhXCuKVgnilpBD/+jQxLE6P75bvPl4+8Pr07mP3X1Wtzs5s2M4mD8+99Nu/7NHD81ezs1tOJvP6yHoyeXwZyn/77JUEj6izevauLobu5zQDCcWfvcnr4puz2ger849M1XuiTb922I905cTDy3fLhz/UTo3/m8Rfzclxjm4Qf5bTDKQRbwpuNZnXBf2Vea9r+95NEf3QFPmmKYP9gaMa/3NtZfJ7U5gbWzurqj3d6Gp8NR+RzcS8/iCwe34frIl9/HJzrP779emPs/a8XkbMy0wq/2hSvZpgL0fT+twfZ/Zce3hxOfRxTm3S736yR/andBnojpjmZnL9I+VMYvG26Fb2wz5tCsocaD7+jy9HB/rip+v6va/2FXnSFHBfvKluF8T3gp28vDby3WxRi/h7K/4kI0dZHEqwl6Pp/tz28PlH9DSnzQt+Z/LQO6WXSJe1WFKSNvX125maj25t8PXJPpzbP5oXmRrYHuj18ab93M6mXRO6P/2oqW+rxqKNdNQyHwebVicvr8V//zSv1nUVPZToPiObOp3trH7t+o0E+zmy525n5lzbjdjUzkL3crqPcnxKl4H2yHYWT7ohnXjbghrJG1sMttzt0K0b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" alt="plot of chunk unnamed-chunk-2"/> </p>
+
+<p>Let&#39;s compare the two sets by Wilcoxon test. The difference is not significant (p-value=0.898)</p>
+
+<p>Each dm gene is charaterised by the p-value (the closer to 0, the more oprobable is DM). Lets&#39;s compare the value for the genes in the dm.and.de intersection and for the other genes.</p>
+
+<h3>DM vs DE</h3>
+
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfgAAAH4CAMAAACR9g9NAAAAkFBMVEX9/v0AAAAAADkAAGUAOTkAOY8AZo8AZrU5AAA5ADk5AGU5OQA5OY85ZmU5j485j9plAABlADllAGVlOY9lZjllZmVlj49ltbVltf2POQCPOTmPOWWPZgCPtY+P27WP2/21ZgC1tWW124+1/rW1/tq1/v3ajzna24/a/rXa/tra/v39tWX924/9/rX9/tr9/v2xKsWGAAAAMHRSTlP//////////////////////////////////////////////////////////////wBipdB4AAAACXBIWXMAAAsSAAALEgHS3X78AAAPcklEQVR4nO2diZrjthEGLa8nUpxNpE3iRHLizDjOyvboev+3Cy9pSF0USQh/g1317c6hIdBgFwEC1MFvDuCSb9QNAA2IdwrinYJ4pyDeKYh3CuKdgninIN4piHcK4p2CeKcg3imIdwrinYJ4pyDeKYh3CuKdgninIN4piHcK4p2CeKcg3ikxxO8Wk5zl+eP71aev1x/YLT59Pf4/HN4uSpZsZ5NvXxv171eTyTx7ZD2ZvLw3trnZpOqnaxt9bHy/shpZUy/2qm/Y5xJR/MVO3hZflqp+ebs8ZA6NP1T1Z8r3q2//lEnK/VeubhT+KNJF/M2W1Fv0gPjHwj6XOOLzxL1N5pmXv+f7ui72PU/Rz6WhTZmD0wO1Hv+/TOLkD3kyN0VnPhyq4rndUm95iGwmn77mAbKfd4s/z4q/HLc5BSzj14ucrBY0GpJvktfwz8X9yhotmmZl/zsryhYPLx8Jm5X89EvxyKnIsQHHR/LhZnL7kOpMZPFF6t6Kg31aJip/oDz8X95rDzTFT9fZvr9VWa6Kn4vPu1uW4p9myyyz/2iIbwQ8K9IwcNaQWhPvVdZo0fRUtnr48hC9CFts8F3e5EaRRiXHpoWSEnWoz3Znmh+6mcHdovh1XvxQbpR32OqBxjk+Hz+3s+lxCD0Vrw31VdfIxf9nMT+ssz5XG53rAaeHsyJV4z4yemrIJntwO8u2W0/uV9ZsUVF2O8vLFmedorb7YU9R6kWODage2c7CSc+JJ74YQXPJmyINhaZi6nac6+S7Wz1wIX6/evltUWbvVPy6+Ne3l99XL7/WxdcCHs+pN8UfG1KofHkvijbO8Vcqa7aoVvZ0vLeEPUVpFmk8UhRIcqg/HG6Kz09f98Uf1tkYPi8quSm+HOpf19nZcr59TPz5mNtoSG/xp7K3xJ+HvSb+vJKybeEmgwLxl0P9uhgc7w31tZXUraG+mty9bmc/5F+uj85NAxezrI+GVHm/O9QfKzsf6k9lG7t9J2xzqC+LnFdyakAgBOIPF5O78rAuxF9M7nLx5bbHDByLX1/O5WNi7YxYbPMR8MPAscjxp6Kqj4ZUea9P7m5WVm/RZHoqWz2cV9IS9nxylxc5r+Q4GIWSohB/uZzL9m5ejv0/ny/nvuadvUjA9FhfVfxc/LIKkG/ZFF9bgTUNfFxJqar6aEiV99zJXxb3K/toUd7U309lC2lFHW1h84P1l2aR80qKoT7gsj+ZS7brcKOcTTYB12oPkIr4e9fDkqfq/vOYMRMRv75yqX9EbKo5QkQSEQ+hQbxTEO8UxDsF8U5BvFMQ7xTEOwXxTkG8UxDvFMQ7BfFOQbxTEO8UxDsF8U5BvFMQ7xTEO2WI+AlY5oniB5SFZ4N4pyDeKYh3CuKdgninIN4piHcK4p2CeKcg3imId8oTxD/4NED3+iI8N/EMbLZ/PD0+9QHGVroQHw1b6UJ8NGylC/HRsJWuhMRDJxDvFMQ7ZTziUz/ObKUL8dGwlS7ER8NWuhAfDVvpQnw0bKUrIfHQCcQ7BfFOGY/41I8zW+lCfDRspQvx0bCVLsRHw1a6EB8NW+lKSDx0AvFOQbxTxiM+9ePMVroQHw1b6UJ8NGylC/HRsJWudvHbWXG/+t1fL27jbWtPzGMrXa3i96tl9n9uQDx0Yqj4UvjbFPGJEaLHZ6y/+x7xSTH4HL9bzPNv609q8akfZ7bSxaw+GrbShfho2EoX4qNhK12Ij4atdLUv5xbVh/LIJ3fQicE9Pr9606tqkDJ8qN99ee1VNUjhHG8FW+lCfDRspeuhZ+euz+2M7Yl5bKXr0Wv1h83Le8eqQ4P4kOEefHaO5+OHYytdCfV46ESAZ+eMnOOhE+OZ1UMnxiM+9ePMVrr6LOdE9wRAfMhwCU3uEB8yHMu5aNhKFz0+GrbSxXJurIxnVg+dQLxTeHbOCrbSxeQuGrbSxXIuGrbSRY+Phq10JbScQ3zIcMzqxwrinRJKvH5yB50YT49P/TizlS7ER8NWurhyFw1b6WIdHw1b6eLKXTRspSuhHg+dGM+VO+jEeGb10InxiE/9OLOVLsRHw1a6EB8NW+lCfDRspQvx0bCVroTEQycQ7xTEO2U84lM/zmylC/HRsJUuxEfDVroQHw1b6UJ8NGylKyHx0AnEOwXxThmP+NSPM1vpQnw0bKUL8dGwlS7ER8NWuhAfDVvpSkg8dALxTkG8U8YjPvXjzFa6EB8NW+lCfDRspauPeO5Q0Qtb6aLHR8NWuhISD51AvFMQ75TxiE/9OLOVLsRHw1a6EB8NW+lCfDRspQvx0bCVroTEQycQ7xTEO2U84lM/zmylC/HRsJUuxEfDVroQHw1b6UJ8NGylKyHx0AnEOwXxThmP+NSPM1vpQnw0bKUL8dGwlS7ER8NWuhAfDVvpSkg8dALxThksfjubTNfccDA5horf//h6WE8z/5/VtxhN/Tizla6Hbiq8nnNT4eHYShc9Phq20vXQOX5u4hyP+JDhEprVIz5kuITEQydCDPXcPz5BBk/uVsvi++ZFPbmDToRYztW/P151aFI/zmylK6Eej/iQ4drP8buFkXM84kOGS2hWj/iQ4RAfDVvpYjk3VsYzuYNOjGc5B50YT49P/TizlS6Wc9GwlS5m9dGwlS7ER8NWuvos57hRQS9spSuhyR10guWcU+jxTmE5ZwVb6arE71eTl9++vAatOjSIDxmuFL9fzbef36+M5kOqDg3iQ4YrxWczt0z8lfnbwdCzc4gPGa7e49fXerydyR3iQ4b7OMdPJldHepZzicJyzinjWc5BJx6b3N2UO6Dq0KR+nNlKV73H52+DD1h1aBAfMlxd/PXl3O0/tu/JxC6tbU+9/R3Eb4IP9XY76YPin9yK/gQSX53jl5GDC0F8awVDrtylnLjHt1LwfPGD1vEpJ+7xrRQEEV8N9NeXc4Ou3KWcuMe3UkCP7wniWysYcuUu5cQ9vpWCUOLXN4f6ZwYXgvji6+7L62ZafI5h1OBCEF98zWZu5b+4wYUgvvi6//E1+7f9HvF9tlIQ6hyfOd9MJvPIwYUgXhlcCOKVwYUgvvi6W3R8ZXWY4EIQX33Pn4rpuJpDvBCej+8J4qvv9Pj+WyngHN8TxCuDC0H86aeur7FFvBLE9wTxp58Q33crBZzje4L48lvxblmWc/22UhDqadnVPPvKCzH6baUg3AsxDi1voXpGcCGIL78VnZ0e328rBcGu3N15Zf3zggtBvDK4EMQrgwtBvDK4EMQrgwtBvDK4EMT3CRrq4ziEIF4ZXAjilcGFIF4ZXAjilcGFIF4ZXAjilcGFIF4ZXAjilcGFIF4ZXAjilcGFIF4ZXAjilcGFIF4ZXAjilcGFIF4ZXAjilcGFIF4ZXAjilcGFIF4ZXAjilcGFIF4ZXAjilcGFIF4ZXAjilcGFIF4ZXAjilcGFIF4ZXAjiH4tz9XY1iNfxfPF3PiUF8Toi9PjdIlNOjzdGlKF+t3j5FfG2iHSO386ufRwW4nUwq+8J4pXBhSC+tYL8bjXcRtwazxe/Xy2L75vLu9YgXkeEdXz1ycZXPuEY8Tro8T1BfGsF1aU7zvGmYFbfE8QrgwtBfGsFLOcswuSuJ4hvK89yziT0+J4gvrUClnMWYVbfE8QrgwtBfGsFl8s5blSgh8ldTxDfVp7lnEno8T1BfGsFLOcswqy+J4hXBheC+NYKeHbOIkzueoL4tvIs50xCj+8J4lsrYDlnEWb1PUG8MrgQxD8aicmdKejxPUG8MrgQxLdWwJU7i7CO7wni28pz5c4k9PieIL61Aq7cWYRZfU8QrwwuBPHK4EIQrwwuBPHK4EIQrwwuBPHK4EIQrwwu5EHxdhm6h4i/u5Vdhu4h4u9uZZehe4j44VspQHxPEK8MLgTxyuBCEK8MLgTxyuBCEK8MLgTxyuBCEK8MLgTxzw1ul0B7qALxfQm0hyoQ35dAe6jCuvgBtT8XxCuDC0G8MrgQxCuDC0G8MrgQxPcJ+vDMOOXEPb6VAnp8TxCvDC4E8crgQhCvDC4E8crgQhCvDC4E8crgQhCvDC4E8crgQhCvDC4E8crgQhCvDC4E8crgQhCvDC4E8crgQhCvDC4E8crgQhCvDC4E8crgQhCvDC4E8crgQhCvDC4E8crgQhCvDC4E8crgQhD/3OB2eWwP7TLUznPFg47B4ofcWxZ0DBU/6E6TQUn9OLOVrufeWzYoiA8Zjh4fDVvpeu69ZYOC+JDhEprVIz5kuITEQydYzjllPJM76ATLOSvYSldCPR7xIcOxnIuGrXQlNKtHfMhwiI+GrXSxnBsr45ncQSfGs5yDToynx6d+nNlKF8u5aNhKF7P6aNhKF+KjYStdfZZzj7/E9zEiv+44ODbbP57JHXSC5ZxT6PFOGc9yDjoxnlk9dALxTuHZOacwuXMKyzmn0OOdwnLOKczqnYJ4p4QSf21yB5YJJF5P6gOMrfYjPhq22j/kyl1kbCWuO7baP2QdHxlbieuOrfYPuXIXGVuJ646t9tPjo2Gr/UOu3EXGVuK6Y6v9Cc3qISSIdwrinYJ4pyDeKYh3CuKdgninIN4piHeKVfHlk8Hzw2H35TX77fvqmaJFce24/OO3r9om3me/Kq50v/w6qy54l/uQfbXRerPiK9WHzQ/z02+7xfJwWL+8n/5om6KZZVtPjc7Fm2i9dfH7H//zt/fjb8W3bAiwkbpWauJPvhHfwjE728/vb8vjb/tV+dywjdS1Qo/vQXEinGYZmx8209rAX5wcy7Ok/AUCbZTij209O8erW29W/LGPFzOjeifZ/jG5oX7z7evFmK/GuPhspD8c3pbVb1nfP9R+tc7HUL/OZvXF8iTfIRutNy5+nb/uazOtz+pTnNztV9kh+zbNf5gbmaHYFr//V/519+Wn4rQ4Ldbxp3P8ZKluZAv1Wf1snpkvr0zYaL1V8fBkEO8UxDsF8U5BvFMQ7xTEOwXxTkG8UxDvFMQ7BfFOQbxTEO8UxDsF8U5BvFMQ7xTEOwXxTvEnvvEi1/KFj8tD/X2YjZe+23hJ7BPwLr54N95iWX/0coMx4lL89vO/q5c3Vy9+brzLoerxm/wtPLuFgY/0fAo+xc/m1Wfzlr6b79Eoxecf2rye0uPHQ9WhT29lO+TvxX6tvZOxEl+84wnx4+GK+Gs9Pp/u5W/aQfxYuCJ+83LlHH/x+LhA/LVZffYvnwMgfkw0xTfX8cVUv9rgrfjIov2KWT2MCcQ7BfFOQbxTEO8UxDsF8U5BvFMQ7xTEOwXxTkG8UxDvFMQ7BfFOQbxTEO8UxDvl/5ijmYGWD22JAAAAAElFTkSuQmCC" alt="plot of chunk unnamed-chunk-3"/> </p>
+
+<p>Not significant, again (p-value=0.2898)</p>
+
+<h3>Direction of DE and DM</h3>
+
+<p>Let&#39;s test whether the directions of de and dm are consistent.</p>
+
+<pre><code>##             dm.direction
+## de.direction FALSE TRUE
+##        FALSE    35   31
+##        TRUE     41   41
+</code></pre>
+
+<p>We see no consitency, alas!</p>
+
+</body>
+
+</html>

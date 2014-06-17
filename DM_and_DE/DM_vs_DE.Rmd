@@ -1,0 +1,61 @@
+An attempt to combine DE and DM data in the 
+========================================================
+
+Alexander Favorov  
+-----------------------------------------------
+
+### `r format(Sys.Date(), "%d %b %Y")` 
+
+`r opts_chunk$set(echo=FALSE, message=FALSE, warning=F, cache=F)`
+
+```{r}
+de<-read.table('N_D_32s.ebseq.results.de_fdr0.05.sortRealFC.txt.gnames',header=TRUE)
+dm<-read.table('../DiffMeth/genomewidenoodles/DM.M.noodles.fdr.adjacent.genes.tsv',header=TRUE)
+#dm.strict<-read.table('../DiffMeth/genomewidenoodles/DM.M.noodles.bonf.adjacent.genes.tsv',header=TRUE)
+de.and.dm<-intersect(de$GENE_NAME,dm$SYMBOL)
+#de.and.dm.strict<-intersect(de$GENE_NAME,dm.strict$SYMBOL)
+
+deindm<-de$GENE_NAME %in% de.and.dm
+dminde<-dm$SYMBOL %in% de.and.dm
+
+#deindmstrict<-de$GENE_NAME %in% de.and.dm.strict
+```
+First, we load tho sets of genes: those that are near (+-10000) the differetially methylated intervals (dm, `r length(dm$SYMBOL)` genes) and those that are diferentially expressed (de, `r length(de$GENE_NAME)` genes.
+their intersection is de.and.dm and its length is `r length(de.and.dm)`.
+
+Each de gene is charaterised by the probability to be DE (PPDE). Lets's compare the value for the genes in the dm.and.de intersection and for the other genes.
+
+### DE vs DM
+
+```{r} 
+boxplot(de$PPDE~deindm,main="Probability of DE for DM and for other DE genes", 
+     ylab="PPDE", xlab="In DM list")
+```
+
+Let's compare the two sets by Wilcoxon test. The difference is not significant (p-value=`r wilcox.test(de$PPDE~deindm)$p.value`)
+
+Each dm gene is charaterised by the p-value (the closer to 0, the more oprobable is DM). Lets's compare the value for the genes in the dm.and.de intersection and for the other genes.
+
+### DM vs DE
+```{r} 
+boxplot(dm$p.value~dminde,main="Probability of DM for DE and for other DE genes", 
+     ylab="p-value", xlab="In DE list")
+```
+
+Not significant, again (p-value=`r wilcox.test(dm$p.value~dminde)$p.value`)
+
+### Direction of DE and DM 
+
+Let's test whether the directions of de and dm are consistent.
+
+```{r}
+dm.direction<-sapply(de.and.dm,function(gene){dm$ishyper[which(dm$SYMBOL==gene)]})
+de.direction<-sapply(de.and.dm,function(gene){de$PostFC[which(de$GENE_NAME==gene)]>1})
+
+de.and.dm.direction<-table(de.direction,dm.direction)
+
+print(de.and.dm.direction)
+```
+
+We see no consitency, alas!
+
