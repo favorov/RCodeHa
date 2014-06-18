@@ -80,6 +80,7 @@ de.and.dm.direction<-table(de.direction,dm.direction)
 
 print(de.and.dm.direction)
 ```
+No correcpondence, looks like completely random Fisher table.
 
 # DM gene lists for flanks 100000 around intevals with fdr<0.1
 
@@ -146,6 +147,8 @@ de.and.dm.direction<-table(de.direction,dm.direction)
 print(de.and.dm.direction)
 ```
 
+No correcpondence, looks like completely random Fisher table.
+
 # DM gene lists for no flanks; intevals with fdr<0.1
 
 ```{r}
@@ -209,6 +212,8 @@ de.and.dm.direction<-table(de.direction,dm.direction)
 
 print(de.and.dm.direction)
 ```
+
+No correspondence, looks like completely random Fisher table.
 
 # DM gene lists for flanks 100000 around intevals with bonferroni-corrected DM intervals
 
@@ -274,6 +279,8 @@ de.and.dm.direction<-table(de.direction,dm.direction)
 print(de.and.dm.direction)
 ```
 
+No correspondence, looks like completely random Fisher table.
+
 # DM gene lists for flanks 1000000 around intevals with bonferroni-corrected DM intervals
 
 ```{r}
@@ -338,6 +345,9 @@ de.and.dm.direction<-table(de.direction,dm.direction)
 
 print(de.and.dm.direction)
 ```
+
+No correspondence, looks like completely random Fisher table.
+
 # gene lists for flanks 1000 around intevals with fdr<0.1 ; differectial expressio with PPDE>0.999
 
 ```{r}
@@ -403,3 +413,8 @@ de.and.dm.direction<-table(de.direction,dm.direction)
 
 print(de.and.dm.direction)
 ```
+
+No correspondence, looks like completely random Fisher table.
+
+
+
