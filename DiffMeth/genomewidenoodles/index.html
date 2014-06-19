@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>Which CpG islands are differentially methylated in the 2014-02-06_RO1_Batch1-4_ClinicalData_DeID data?</title>
+
+
+
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<h1>Differential methylation for ACC</h1>
+
+<h2>Alexander Favorov  </h2>
+
+<h3>18 Jun 2014</h3>
+
+<!-- cache is off, we save all the neccessary things in Rda -->
+
+<h2>1000bp intervals (M-noodles)</h2>
+
+<p>All the genome was split to 1000 bp intevals (M-noodles)</p>
+
+<p>Then, for each noodle and each sample we checked whether there is a methylated region (we read them from to MACS bedfiles) that ovelap with the noodle in each of the samples.</p>
+
+<p>Then, for each noodle we calculate Fisher's p-value for 4-field table: methylated/nonmethylated, cancer/normal. The table count samples. Sum of the table is the sum of the samples.
+We form two lists of DM noodles: <a download href=https://raw.githubusercontent.com/favorov/RCodeHa/blob/master/DiffMeth/genomewidenoodles/M/DM.M.noodles.bonf.bed>the list of noodles that passed the Bonferroni corrected 0.05 threshold</a> (<a download href=https://raw.githubusercontent.com/favorov/RCodeHa/blob/master/DiffMeth/genomewidenoodles/M/DM.M.noodles.bonf.strict.bed>here is its 'strict pure bed' version</a>) and <a download href=https://raw.githubusercontent.com/favorov/RCodeHa/blob/master/DiffMeth/genomewidenoodles/M/DM.M.noodles.fdr.bed>the list of noodles that passed the FDR &lt 0.1 threshold</a> (<a download href=https://raw.githubusercontent.com/favorov/RCodeHa/blob/master/DiffMeth/genomewidenoodles/M/DM.M.noodles.fdr.strict.bed>strict bed</a>)</p>
+
+<p>
+Then, we prepared gene lists in following manner. For each DM region, we looked for TSS inside the region expanded by flanks. So, a list depnds on two parametes: DM regions interval list and the flanks interval. Each gene is ascribed by the p-value and the DM sign (hyper- or hypomethylated in cancer) from the noodles it was hit by. If a gene is hit by more than one noodle, the lowest p-value is taken and the sign is the common one; if thye contrdict, the sign is NA.
+</p>
+
+<p>
+<table>
+<tr><td>Bonferroni-corr &lt 0.05</td><td>&nbsp&nbsp&nbsp</td><td> FDR &lt 0.1</td><tr>
+<tr><td></td><td>&nbsp&nbsp&nbsp</td><td><a download href=https://raw.githubusercontent.com/favorov/RCodeHa/blob/master/DiffMeth/genomewidenoodles/M/DM.M.noodles.fdr.adjacent.genes.noflanks.tsv>no flanks</a></td></tr>
+<tr><td><a download href=https://raw.githubusercontent.com/favorov/RCodeHa/blob/master/DiffMeth/genomewidenoodles/M/DM.M.noodles.bonf.adjacent.genes.tsv>flanks=10000</a></td><td>&nbsp&nbsp&nbsp</td><td><a download href=https://raw.githubusercontent.com/favorov/RCodeHa/blob/master/DiffMeth/genomewidenoodles/M/DM.M.noodles.fdr.adjacent.genes.tsv>flanks=10000</a></td></tr>
+<tr><td><a download href=https://raw.githubusercontent.com/favorov/RCodeHa/blob/master/DiffMeth/genomewidenoodles/M/DM.M.noodles.bonf.adjacent.genes.100000.tsv>flanks=100000</a></td><td>&nbsp&nbsp&nbsp</td><td><a download href=https://raw.githubusercontent.com/favorov/RCodeHa/blob/master/DiffMeth/genomewidenoodles/M/DM.M.noodles.fdr.adjacent.genes.100000.tsv>flanks=100000</a></td></tr>
+<tr><td><a download href=https://raw.githubusercontent.com/favorov/RCodeHa/blob/master/DiffMeth/genomewidenoodles/M/DM.M.noodles.bonf.adjacent.genes.1000000.tsv>flanks=1000000</a></td><td>&nbsp&nbsp&nbsp</td><td></td></tr>
+</table>
+</p>
+<p>
+The Bonferroni+0-flanks file is too small, FDR+1000000 is too large.
+</p>
+</body>
+
+</html>
