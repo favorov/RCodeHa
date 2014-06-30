@@ -1,4 +1,4 @@
-if (!suppressWarnings(require('Differential.Coverage')))
+#if (!suppressWarnings(require('Differential.Coverage')))
 {
 	if (!suppressWarnings(require('devtools')))
 	{
@@ -6,10 +6,12 @@ if (!suppressWarnings(require('Differential.Coverage')))
 		biocLite("devtools")
 		library("devtools")
 	}
-	install_github('Differential.Coverage','favorov')
-	#load_all('../../../../differential.coverage/')
+	#install_github('Differential.Coverage','favorov')
+	load_all('../../../../../differential.coverage/')
 	library('Differential.Coverage')
 }
+
+stop('qq')
 
 noodles.C.loaded<-FALSE
 # we can the whole thing to noodles.C.Rda
@@ -22,6 +24,7 @@ if(file.exists('noodles.C.Rda'))
 				if(class(noodles.C)=='GRanges')
 			noodles.C.loaded<-TRUE
 }
+
 
 if(!noodles.C.loaded)
 {
