@@ -23,7 +23,7 @@ if(!noodles.M.fisher.results.loaded)
 		source('prepare.gw.noodles.M.R')
 	}
 
-	#if (!suppressWarnings(require('Differential.Coverage')))
+	if (!suppressWarnings(require('Differential.Coverage')))
 	{
 		if (!suppressWarnings(require('devtools')))
 		{
@@ -31,9 +31,9 @@ if(!noodles.M.fisher.results.loaded)
 			biocLite("devtools")
 			library("devtools")
 		}
-		#install_github('Differential.Coverage','favorov')
-		load_all('../../../../../differential.coverage/')
-		#library('Differential.Coverage')
+		install_github('Differential.Coverage','favorov')
+		#load_all('../../../../../differential.coverage/')
+		library('Differential.Coverage')
 	}
 
 	
