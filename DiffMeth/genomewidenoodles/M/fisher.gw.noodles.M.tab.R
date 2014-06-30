@@ -49,21 +49,22 @@ if(!noodles.M.fisher.results.loaded)
 	#noodles.M.methylation=noodles.M.methylation[1:60000,] #test
 	tests.number<-dim(noodles.M.methylation)[1]
 	
-	fisher.noodles.M.result<-data.frame('fisher.p.values'=numeric(tests.number),'meth.in.normals.ratio'=numeric(tests.number),'meth.in.tumors.ratio'=numeric(tests.number), 'OR'=numeric(tests.number),'CI_95_L'=numeric(tests.number),'CI_95_H'=numeric(tests.number)) 
+	#fisher.noodles.M.result<-data.frame('fisher.p.values'=numeric(tests.number),'meth.in.normals.ratio'=numeric(tests.number),'meth.in.tumors.ratio'=numeric(tests.number), 'OR'=numeric(tests.number),'CI_95_L'=numeric(tests.number),'CI_95_H'=numeric(tests.number)) 
 	
-	#fisher.noodles.M.result<-data.frame('fisher.p.values'=numeric(0),'meth.in.normals.ratio'=numeric(0),'meth.in.tumors.ratio'=numeric(0), 'OR'=numeric(0),'CI_95_L'=numeric(0),'CI_95_H'=numeric(0)) 
+	fisher.noodles.M.result<-data.frame('fisher.p.values'=numeric(0),'meth.in.normals.ratio'=numeric(0),'meth.in.tumors.ratio'=numeric(0), 'OR'=numeric(0),'CI_95_L'=numeric(0),'CI_95_H'=numeric(0)) 
 	
 	revcontrast<-!contrast
+	report.every<-tests.number/1000
 	for (rown in 1:tests.number) 	
 	{
-		if (!(rown %% 10000)) message(rown)
+		if (!(rown %% report.every)) message(rown)
 		theraw<-noodles.M.methylation[rown,]
 		aslogic<-as.logical(theraw)
 		MY<-sum(aslogic & contrast)
 		MN<-sum(aslogic & revcontrast)
 		fishres<-fishtabs[norm.no*MY+MN+1,]
-		fisher.noodles.M.result[rown,]<-fishres
-		##c(fisherres$p.value,cotable[2,2]/cotable[1,2],cotable[2,1]/cotable[1,1],fisherres$estimate,fisherres$conf.int[1],fisherres$conf.int[2])
+		
+		#fisher.noodles.M.result[rown,]<-fishres
 	}
 	message('done\n')
 	message('Saving...\n')
