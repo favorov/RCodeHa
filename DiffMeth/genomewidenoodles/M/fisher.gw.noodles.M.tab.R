@@ -49,13 +49,14 @@ if(!noodles.M.fisher.results.loaded)
 	#noodles.M.methylation=noodles.M.methylation[1:60000,] #test
 	tests.number<-dim(noodles.M.methylation)[1]
 	
+	message('create result matrix')
 	fisher.noodles.M.result.mat<-matrix(ncol=6,nrow=tests.number)
 	
 	colnames(fisher.noodles.M.result.mat)<-c('fisher.p.values','meth.in.normals.ratio','meth.in.tumors.ratio','OR','CI_95_L','CI_95_H') 
 	
 	revcontrast<-!contrast
 	report.every<-tests.number %/% 100
-	message('create result matrix')
+	message('fill result matrix')
 	for (rown in 1:tests.number) 	
 	{
 		if (!(rown %% report.every)) message(rown)
