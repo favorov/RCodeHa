@@ -50,7 +50,7 @@ if(!noodles.M.fisher.results.loaded)
 	tests.number<-dim(noodles.M.methylation)[1]
 	
 	message('create result matrix')
-	fisher.noodles.M.result.mat<-matrix(ncol=6,nrow=tests.number)
+	fisher.noodles.M.result.mat<-matrix(fishtabs[1,],ncol=6,nrow=tests.number,byrow=TRUE)
 	
 	colnames(fisher.noodles.M.result.mat)<-c('fisher.p.values','meth.in.normals.ratio','meth.in.tumors.ratio','OR','CI_95_L','CI_95_H') 
 	
@@ -64,7 +64,8 @@ if(!noodles.M.fisher.results.loaded)
 		aslogic<-as.logical(theraw)
 		MY<-sum(aslogic & contrast)
 		MN<-sum(aslogic & revcontrast)
-		fishres<-fishtabs[norm.no*MY+MN+1,]
+		if (0==MN && 0==MY) next
+		fishres<-fishtabs[tab.fisher.row.no(tumor.no,norm.no,MY,MN),]
 		fisher.noodles.M.result.mat[rown,]<-fishres
 	}
 	message('converting to dataframe')
