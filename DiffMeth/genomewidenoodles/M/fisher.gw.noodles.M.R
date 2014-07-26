@@ -23,28 +23,53 @@ if(!noodles.M.fisher.results.loaded)
 		source('prepare.gw.noodles.M.R')
 	}
 
-	#noodles.M.methylation=noodles.M.methylation[1:60000,] #test
-	message('fishering')
+	if (!suppressWarnings(require('Differential.Coverage')))
+	{
+		if (!suppressWarnings(require('devtools')))
+		{
+			source("http://bioconductor.org/biocLite.R")
+			biocLite("devtools")
+			library("devtools")
+		}
+		install_github('Differential.Coverage','favorov')
+		#load_all('../../../../../differential.coverage/')
+		library('Differential.Coverage')
+	}
 
+	
+		
 	contrast<-logical(length(bed.ids))
 	contrast[grep('HN',bed.ids)]<-TRUE
 
+	norm.no<-length(which(!contrast))
+	tumor.no<-length(which(contrast))
+
+	fishtabs<-as.matrix(prepare.tabulated.fisher(tumor.no,norm.no))
+
+	#noodles.M.methylation=noodles.M.methylation[1:60000,] #test
 	tests.number<-dim(noodles.M.methylation)[1]
-
-	fisher.noodles.M.result<-data.frame('fisher.p.values'=numeric(tests.number),'meth.in.normals.ratio'=numeric(tests.number),'meth.in.tumors.ratio'=numeric(tests.number),
-		'OR'=numeric(tests.number),'CI_95_L'=numeric(tests.number),'CI_95_H'=numeric(tests.number))
-
+	
+	message('create result matrix')
+	fisher.noodles.M.result.mat<-matrix(fishtabs[1,],ncol=6,nrow=tests.number,byrow=TRUE)
+	
+	colnames(fisher.noodles.M.result.mat)<-c('fisher.p.values','meth.in.normals.ratio','meth.in.tumors.ratio','OR','CI_95_L','CI_95_H') 
+	
+	revcontrast<-!contrast
+	report.every<-tests.number %/% 100
+	message('fill result matrix')
 	for (rown in 1:tests.number) 	
 	{
-		cotable<-table(as.logical(noodles.M.methylation[rown,]),contrast)
-		if(nrow(cotable)==1)#nonmeth
-		{
-			fisher.noodles.M.result[rown,]<-c(1,0,0,NA,NA,NA)
-			next
-		}
-		fisherres<-fisher.test(cotable)
-		fisher.noodles.M.result[rown,]<-c(fisherres$p.value,cotable[2,2]/cotable[1,2],cotable[2,1]/cotable[1,1],fisherres$estimate,fisherres$conf.int[1],fisherres$conf.int[2])
+		if (!(rown %% report.every)) message(rown)
+		theraw<-noodles.M.methylation[rown,]
+		aslogic<-as.logical(theraw)
+		MY<-sum(aslogic & contrast)
+		MN<-sum(aslogic & revcontrast)
+		if (0==MN && 0==MY) next
+		fishres<-fishtabs[tab.fisher.row.no(tumor.no,norm.no,MY,MN),]
+		fisher.noodles.M.result.mat[rown,]<-fishres
 	}
+	message('converting to dataframe')
+	fisher.noodles.M.result<-as.data.frame(fisher.noodles.M.result.mat)
 	message('done\n')
 	message('Saving...\n')
 	save(file='noodles.M.fisher.results.Rda',list=c('fisher.noodles.M.result','tests.number','contrast'))
