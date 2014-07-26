@@ -1,13 +1,14 @@
-#the script work without parrallel if you just run it
-#worker: sge worker #workers-no (gets ites worker id from SGE_TASK_ID)
-#combine: sge combiner #worker-no
+#the script work without parallel frame if you just run it
+#worker-in-sge-array: worker-in-sge-array (gets its worker id from SGE_TASK_ID and the number of workers from SGE_TASK_LAST)
+#worker:  worker my-worker-no workers-no (good for any parallel enviroment, including fork)
+#combine: combiner workers-no (good for any parallel enviroment, including fork)
 
 args <- commandArgs(trailingOnly = TRUE)
 
 if(length(args) > 0)
 {
 	if(length(args)!=3)
-		stop('Argument nomber is not 3')
+		stop('Argument number is not 3')
 	if (args[1] != 'sge') 
 		stop('First argument is unknown!')
 	if(suppressWarnings(is.na(workers.no<-as.integer(args[3]))))
@@ -21,9 +22,9 @@ if(length(args) > 0)
 			stop('Worker run not in array')
 		if(sge.task.last<-as.integer(Sys.getenv('SGE_TASK_LAST', unset = "-1"))!=workers.no)
 			stop('Worker run; SGE_TASK_LAST!=workers.no')
-		if(sge.task.last<-as.integer(Sys.getenv('SGE_TASK_FIRST', unset = "-1"))!=1)
+		if(sge.task.first<-as.integer(Sys.getenv('SGE_TASK_FIRST', unset = "-1"))!=1)
 			stop('Worker run; SGE_TASK_FIRST!=1')
-		if(sge.task.last<-as.integer(Sys.getenv('SGE_TASK_STEP', unset = "-1"))!=1)
+		if(sge.task.step<-as.integer(Sys.getenv('SGE_TASK_STEP', unset = "-1"))!=1)
 			stop('Worker run; SGE_TASK_STEP!=1')
 	}
 	else
