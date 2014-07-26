@@ -5,36 +5,59 @@
 
 args <- commandArgs(trailingOnly = TRUE)
 
-if(length(args) > 0)
+i.am.worker<-FALSE
+i.am.combiner<-FALSE
+
+if (length(args) > 0)
 {
-	if(length(args)!=3)
-		stop('Argument number is not 3')
-	if (args[1] != 'sge') 
+	if (! args[1] %in% c('worker-in-sge-array','worker','combiner'))
 		stop('First argument is unknown!')
-	if(suppressWarnings(is.na(workers.no<-as.integer(args[3]))))
-		stop('Third arg is not number')
-	if(workers.no<2 || workers.no>100)
-		stop('Third arg is a strange number')
-	if('worker'==args[2])
+	if( 'worker-in-sge-array' == args[1] )
 	{
+		if (length(args)>1)
+			stop('worker-in-sge-array is to be the only arg')
+		if(my.worker.no<-as.integer(Sys.getenv('SGE_TASK_ID', unset = "-1"))<0)
+			stop('Worker-in-sge-array run not in sge array (no SGE_TASK_ID set)')
+		if(task.last<-as.integer(Sys.getenv('SGE_TASK_LAST', unset = "-1"))<0)
+			stop('Worker-in-sge-array run not in sge array (no SGE_TASK_LAST set)')
+		if(task.first<-as.integer(Sys.getenv('SGE_TASK_FIRST', unset = "-1"))<0)
+			stop('Worker-in-sge-array run not in sge array (no SGE_TASK_FIRST set)')
+		if(task.first!=1)
+			stop('Worker-in-sge-array run; SGE_TASK_FIRST!=1')
+		if(task.step<-as.integer(Sys.getenv('SGE_TASK_STEP', unset = "-1"))<0)
+			stop('Worker-in-sge-array run not in sge array (no SGE_TASK_STEP set)')
+		if(task.step!=1)
+			stop('Worker-in-sge-array run; SGE_TASK_STEP!=1')
 		i.am.worker<-TRUE
-		if(my.workers.no<-as.integer(Sys.getenv('SGE_TASK_ID', unset = "-1"))<0)
-			stop('Worker run not in array')
-		if(sge.task.last<-as.integer(Sys.getenv('SGE_TASK_LAST', unset = "-1"))!=workers.no)
-			stop('Worker run; SGE_TASK_LAST!=workers.no')
-		if(sge.task.first<-as.integer(Sys.getenv('SGE_TASK_FIRST', unset = "-1"))!=1)
-			stop('Worker run; SGE_TASK_FIRST!=1')
-		if(sge.task.step<-as.integer(Sys.getenv('SGE_TASK_STEP', unset = "-1"))!=1)
-			stop('Worker run; SGE_TASK_STEP!=1')
+	}
+	else if ('worker' == args[1] )
+	{
+		if (length(args)!=3)
+			stop('worker is to have two more args')
+		if(suppressWarnings(is.na(my.worker.no<-as.integer(args[2]))))
+			stop('Second arg is not number')
+		if(suppressWarnings(is.na(workers.no<-as.integer(args[3]))))
+			stop('Third arg is not number')
+		if(my.worker.no<2 || my.worker.no>100)
+			stop('My number of worker is a strange number')
+		if(workers.no<2 || workers.no>100)
+			stop('Number of workers is a strange number')
+		if(my.worker.no>workers.no)
+			stop('Number of workers is less than my worker no')
+		i.am.worker<-TRUE
+	}
+	else if ('combiner'==args[1])
+	{
+		if (length(args)!=2)
+			stop('combiner is to have one more args')
+		if(suppressWarnings(is.na(workers.no<-as.integer(args[2]))))
+			stop('Second arg is not number')
+		if(workers.no<2 || workers.no>100)
+			stop('Number of workers is a strange number')
+		i.am.combiner<-TRUE
 	}
 	else
-	{
-		if('combiner'==args[2])
-			i.am.worker<-FALSE
-		else
-			stop('Second arg is not a \'worker\' or \'combiner\'')
-	}
-	sge<-TRUE
+		stop('First arg is not a \'worker-in-sge-array\',\'worker\' or \'combiner\'')
 }
 
 noodles.M.fisher.results.loaded<-FALSE
