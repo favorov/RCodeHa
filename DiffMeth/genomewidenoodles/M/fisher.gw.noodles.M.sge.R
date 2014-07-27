@@ -7,6 +7,7 @@ args <- commandArgs(trailingOnly = TRUE)
 
 i.am.worker<-FALSE
 i.am.combiner<-FALSE
+i.am.alone<-FLASE
 
 if (length(args) > 0)
 {
@@ -59,6 +60,11 @@ if (length(args) > 0)
 	else
 		stop('First arg is not a \'worker-in-sge-array\',\'worker\' or \'combiner\'')
 }
+else
+	i.am.alone<-TRUE
+
+if (sum (which(c(i.am.alone,i.am.worker,i.am.combiner))) != 1)
+	stop ('Something wrong with the self-identification of the script')
 
 noodles.M.fisher.results.loaded<-FALSE
 # we can the whole thing to CpGIs.with.methylation.Rda
