@@ -3,6 +3,9 @@
 #worker:  worker my-worker-no workers-no (good for any parallel enviroment, including fork)
 #combine: combiner workers-no (good for any parallel enviroment, including fork)
 
+noodle.lenght<-1000
+noodle.code<-'M'
+
 args <- commandArgs(trailingOnly = TRUE)
 
 i.am.worker<-FALSE
@@ -65,6 +68,11 @@ else
 
 if (sum (which(c(i.am.alone,i.am.worker,i.am.combiner))) != 1)
 	stop ('Something wrong with the self-identification of the script')
+
+if(i.am.alone || i.am.combiner)
+	resultfilename<-paste0('noodles.',noodle.code,'.fisher.results.Rda')
+else
+	resultfilename<-paste0('noodles.',noodle.code,'.fisher.results.worker.',my.worker.no,'.Rda')
 
 noodles.M.fisher.results.loaded<-FALSE
 # we can the whole thing to CpGIs.with.methylation.Rda
