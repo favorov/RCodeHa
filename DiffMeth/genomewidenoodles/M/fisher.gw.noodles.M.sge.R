@@ -10,7 +10,7 @@ args <- commandArgs(trailingOnly = TRUE)
 
 i.am.worker<-FALSE
 i.am.combiner<-FALSE
-i.am.alone<-FLASE
+i.am.alone<-FALSE
 
 if (length(args) > 0)
 {
@@ -74,32 +74,37 @@ if(i.am.alone || i.am.combiner)
 else
 	resultfilename<-paste0('noodles.',noodle.code,'.fisher.results.worker.',my.worker.no,'.Rda')
 
-noodles.M.fisher.results.loaded<-FALSE
+noodles.fisher.results.loaded<-FALSE
 # we can the whole thing to CpGIs.with.methylation.Rda
-if(file.exists('noodles.M.fisher.results.Rda'))
-	if ('fisher.p.values' %in% load('noodles.M.fisher.results.Rda'))
-			noodles.M.fisher.results.loaded<-TRUE
+if(file.exists(resultfilename))
+	if ('fisher.p.values' %in% load(resultfilename))
+			noodles.fisher.results.loaded<-TRUE
 #if we loaded it, we do nothing.
 
-if(!noodles.M.fisher.results.loaded)
+if(!noodles.fisher.results.loaded)
 {
-	if(!sge || i.am.worker)
+	if(i.am.alone || i.am.worker) 
 	{
-		#we need this to load
-		noodles.M.loaded<-FALSE
-		# we can the whole thing to noodles.M.Rda
-		if(file.exists('noodles.M.Rda'))
+		#we need this to load - we are going to Fisherise
+		noodles.loaded<-FALSE
+		# we can load the whole thing from noodles.M.Rda
+
+		noodles.file<-paste0('noodles.',noodle.code,'.Rda')
+		noodles.methylation.var.name<-paste0('noodles.',noodle.code,'.methylation') # it is a variable name!
+		noodles.ranges.var.name<-paste0('noodles.',noodle.code)
+
+		if(file.exists(noodles.file))
 		{
 			loaded<-load('noodles.M.Rda')
-			if ('noodles.M.methylation' %in% loaded) 
-				if (class(noodles.M.methylation)=='data.frame')
-					if ('noodles.M' %in% loaded)
-						if(class(noodles.M)=='GRanges')
-					noodles.M.loaded<-TRUE
+			if (noodles.methylation.var.name %in% loaded) 
+				if (class(get(noodles.methylation.var.name))=='data.frame')
+					if (noodles.ranges.var.name %in% loaded)
+						if(class(get(noodles.ranges.var.name))=='GRanges')
+					noodles.loaded<-TRUE
 		}
-		if(!noodles.M.loaded)
+		if(!noodles.loaded)
 		{
-			source('prepare.gw.noodles.M.R')
+			source(paste0('prepare.gw.noodles.',noodle.code,'.R'))
 		}
 		
 		
