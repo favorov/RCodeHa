@@ -33,8 +33,7 @@ if (length(args) > 0)
 		if(task.step!=1)
 			stop('Worker-in-sge-array run; SGE_TASK_STEP!=1')
 		i.am.worker<-TRUE
-	}
-	else if ('worker' == args[1] )
+	} else if ('worker' == args[1] )
 	{
 		if (length(args)!=3)
 			stop('worker is to have two more args')
@@ -49,8 +48,7 @@ if (length(args) > 0)
 		if(my.worker.no>workers.no)
 			stop('Number of workers is less than my worker no')
 		i.am.worker<-TRUE
-	}
-	else if ('combiner'==args[1])
+	} else if ('combiner'==args[1])
 	{
 		if (length(args)!=2)
 			stop('combiner is to have one more args')
@@ -59,25 +57,31 @@ if (length(args) > 0)
 		if(workers.no<2 || workers.no>100)
 			stop('Number of workers is a strange number')
 		i.am.combiner<-TRUE
-	}
-	else
+	} else
 		stop('First arg is not a \'worker-in-sge-array\',\'worker\' or \'combiner\'')
-}
-else
+} else
 	i.am.alone<-TRUE
 
 if (sum (which(c(i.am.alone,i.am.worker,i.am.combiner))) != 1)
 	stop ('Something wrong with the self-identification of the script')
 
 if(i.am.alone || i.am.combiner)
+{	
 	resultfilename<-paste0('noodles.',noodle.code,'.fisher.results.Rda')
-else
+	fisher.results.var.name<-paste0('fisher.noodles.',noodle.code,'.result')
+} 
+else #i.am.worker
+{
 	resultfilename<-paste0('noodles.',noodle.code,'.fisher.results.worker.',my.worker.no,'.Rda')
+	fisher.results.var.name<-fisher.noodles.result.mat
+}
 
 noodles.fisher.results.loaded<-FALSE
-# we can the whole thing to CpGIs.with.methylation.Rda
+# we can load the whole thing
+
+
 if(file.exists(resultfilename))
-	if ('fisher.p.values' %in% load(resultfilename))
+	if (fisher.results.var.name %in% load(resultfilename))
 			noodles.fisher.results.loaded<-TRUE
 #if we loaded it, we do nothing.
 
@@ -85,6 +89,20 @@ if(!noodles.fisher.results.loaded)
 {
 	if(i.am.alone || i.am.worker) 
 	{
+		
+		if (!suppressWarnings(require('Differential.Coverage')))
+		{
+			if (!suppressWarnings(require('devtools')))
+			{
+				source("http://bioconductor.org/biocLite.R")
+				biocLite("devtools")
+				library("devtools")
+			}
+			install_github('Differential.Coverage','favorov')
+			#load_all('../../../../../differential.coverage/')
+			library('Differential.Coverage')
+		}
+
 		#we need this to load - we are going to Fisherise
 		noodles.loaded<-FALSE
 		# we can load the whole thing from noodles.M.Rda
@@ -104,18 +122,25 @@ if(!noodles.fisher.results.loaded)
 		}
 		if(!noodles.loaded)
 		{
+			if (i.am.worker) 
+				stop (paste0('A worker (',my.worker.no,') cannot load noodles+methylation info from ',noodles.methylation.var.name,' and ',noodles.ranges.var.name,'.\n'))
+			#if here, i.am.alone
 			source(paste0('prepare.gw.noodles.',noodle.code,'.R'))
 		}
 		
-		
-		noodles.M.methylation=noodles.M.methylation[1:60000,] #test
+		#assign(noodles.methylation.var.name,get(noodles.methylation.var.name)[1:60000,]) #test
 		message('fishering')
 
-		noodles.number<-dim(noodles.M.methylation)[1]
-
+		noodles.number<-dim(get(noodles.methylation.var.name))[1]
+		#project-specific code; the bed.ids were prepared in 
 		contrast<-logical(length(bed.ids))
 		contrast[grep('HN',bed.ids)]<-TRUE
-		if (!sge)
+		norm.no<-length(which(!contrast))
+		tumor.no<-length(which(contrast))
+
+		fishtabs<-as.matrix(prepare.tabulated.fisher(tumor.no,norm.no))
+
+		if (i.am.alone)
 		{
 			tests.number<-noodles.number
 			my.worker.start=1
@@ -127,29 +152,39 @@ if(!noodles.fisher.results.loaded)
 			my.worker.start<-1+tests.number*(my.workers.no-1)
 			my.worker.end<-min(my.worker.start+tests.number-1,noodles.number)
 		}
+	
+		message('create result matrix')
+		fisher.noodles.result.mat<-matrix(fishtabs[1,],ncol=6,nrow=tests.number,byrow=TRUE)
 		
-		fisher.noodles.M.result<-data.frame('fisher.p.values'=numeric(tests.number),'meth.in.normals.ratio'=numeric(tests.number),'meth.in.tumors.ratio'=numeric(tests.number),
-			'OR'=numeric(tests.number),'CI_95_L'=numeric(tests.number),'CI_95_H'=numeric(tests.number))
-
-		for (rown in my.worker.start:my.worker.end) 	
+		colnames(fisher.noodles.M.result.mat)<-c('fisher.p.values','meth.in.normals.ratio','meth.in.tumors.ratio','OR','CI_95_L','CI_95_H') 
+		
+		revcontrast<-!contrast
+		report.every<-tests.number %/% 100
+		message('fill result matrix')
+		for (rown in 1:tests.number) 	
 		{
-			resultrow<-rown+1-my.worker.start
-			cotable<-table(as.logical(noodles.M.methylation[rown,]),contrast)
-			if(nrow(cotable)==1)#nonmeth
-			{
-				fisher.noodles.M.result[resultrow,]<-c(1,0,0,NA,NA,NA)
-				next
-			}
-			fisherres<-fisher.test(cotable)
-			fisher.noodles.M.result[resultrow,]<-c(fisherres$p.value,cotable[2,2]/cotable[1,2],cotable[2,1]/cotable[1,1],fisherres$estimate,fisherres$conf.int[1],fisherres$conf.int[2])
+			therown<-rown+my.worker.start-1
+			if (!(rown %% report.every)) message(therown)
+			metraw<-get(noodles.methylation.var.name)[therown,]
+			aslogic<-as.logical(metraw)
+			MY<-sum(aslogic & contrast)
+			MN<-sum(aslogic & revcontrast)
+			if (0==MN && 0==MY) next
+			fishres<-fishtabs[tab.fisher.row.no(tumor.no,norm.no,MY,MN),]
+			fisher.noodles.result.mat[therown,]<-fishres
 		}
-		message('done\n')
-
+		if (i.am.alone)
+		{
+			message('converting to dataframe')
+			assign(fisher.results.var.name,as.data.frame(fisher.noodles.result.mat))
+			message('done\n')
+		}
 		message('Saving...\n')
-		if(!sge)
-			save(file='noodles.M.fisher.results.Rda',list=c('fisher.noodles.M.result','tests.number','contrast'))
-		else #sge
-			save(file=paste('noodles.M.fisher.results.worker.',my.workers.no,'.Rda',sep=''),list=c('fisher.noodles.M.result','noodles.number','tests.number','contrast','my.workers.no','workers.no'))
+		save(file=resultfilename,list=c(fisher.results.var.name,'tests.number','contrast'))
+		#in the worker case, 'fisher.noodles.result.mat' == fisher.results.var.name
+	}
+	else #combiner
+	{
+		message('Combiner started...\n')
 	}
 }
-
