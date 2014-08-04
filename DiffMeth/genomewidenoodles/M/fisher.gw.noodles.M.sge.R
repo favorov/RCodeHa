@@ -41,7 +41,7 @@ if (length(args) > 0)
 			stop('Second arg is not number')
 		if(suppressWarnings(is.na(workers.no<-as.integer(args[3]))))
 			stop('Third arg is not number')
-		if(my.worker.no<2 || my.worker.no>100)
+		if(my.worker.no<1 || my.worker.no>100)
 			stop('My number of worker is a strange number')
 		if(workers.no<2 || workers.no>100)
 			stop('Number of workers is a strange number')
@@ -69,8 +69,7 @@ if(i.am.alone || i.am.combiner)
 {	
 	resultfilename<-paste0('noodles.',noodle.code,'.fisher.results.Rda')
 	fisher.results.var.name<-paste0('fisher.noodles.',noodle.code,'.result')
-} 
-else #i.am.worker
+} else #i.am.worker
 {
 	resultfilename<-paste0('noodles.',noodle.code,'.fisher.results.worker.',my.worker.no,'.Rda')
 	fisher.results.var.name<-fisher.noodles.result.mat
@@ -156,7 +155,7 @@ if(!noodles.fisher.results.loaded)
 		message('create result matrix')
 		fisher.noodles.result.mat<-matrix(fishtabs[1,],ncol=6,nrow=tests.number,byrow=TRUE)
 		
-		colnames(fisher.noodles.M.result.mat)<-c('fisher.p.values','meth.in.normals.ratio','meth.in.tumors.ratio','OR','CI_95_L','CI_95_H') 
+		colnames(fisher.noodles.result.mat)<-c('fisher.p.values','meth.in.normals.ratio','meth.in.tumors.ratio','OR','CI_95_L','CI_95_H') 
 		
 		revcontrast<-!contrast
 		report.every<-tests.number %/% 100
