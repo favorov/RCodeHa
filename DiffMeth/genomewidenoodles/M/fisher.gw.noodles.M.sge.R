@@ -62,7 +62,7 @@ if (length(args) > 0)
 } else
 	i.am.alone<-TRUE
 
-if (sum (which(c(i.am.alone,i.am.worker,i.am.combiner))) != 1)
+if (length(which(c(i.am.alone,i.am.worker,i.am.combiner))) != 1)
 	stop ('Something wrong with the self-identification of the script')
 
 if(i.am.alone || i.am.combiner)
@@ -72,7 +72,7 @@ if(i.am.alone || i.am.combiner)
 } else #i.am.worker
 {
 	resultfilename<-paste0('noodles.',noodle.code,'.fisher.results.worker.',my.worker.no,'.Rda')
-	fisher.results.var.name<-fisher.noodles.result.mat
+	fisher.results.var.name<-'fisher.noodles.result.mat'
 }
 
 noodles.fisher.results.loaded<-FALSE
@@ -148,7 +148,7 @@ if(!noodles.fisher.results.loaded)
 		else
 		{
 			tests.number<-noodles.number %/% workers.no 
-			my.worker.start<-1+tests.number*(my.workers.no-1)
+			my.worker.start<-1+tests.number*(my.worker.no-1)
 			my.worker.end<-min(my.worker.start+tests.number-1,noodles.number)
 		}
 	
