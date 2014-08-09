@@ -163,14 +163,14 @@ if(!noodles.fisher.results.loaded)
 		for (rown in 1:tests.number) 	
 		{
 			therown<-rown+my.worker.start-1
-			if (!(rown %% report.every)) message(therown)
+			if (!(rown %% report.every)) message(rown)
 			metraw<-get(noodles.methylation.var.name)[therown,]
 			aslogic<-as.logical(metraw)
 			MY<-sum(aslogic & contrast)
 			MN<-sum(aslogic & revcontrast)
 			if (0==MN && 0==MY) next
 			fishres<-fishtabs[tab.fisher.row.no(tumor.no,norm.no,MY,MN),]
-			fisher.noodles.result.mat[therown,]<-fishres
+			fisher.noodles.result.mat[rown,]<-fishres
 		}
 		if (i.am.alone)
 		{
