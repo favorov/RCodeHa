@@ -179,7 +179,7 @@ if(!noodles.fisher.results.loaded)
 			message('done\n')
 		}
 		message('Saving...\n')
-		save(file=resultfilename,list=c(fisher.results.var.name,'tests.number','contrast'))
+		save(file=resultfilename,list=c(fisher.results.var.name,'noodles.number','my.worker.no','my.worker.start','workers.no','my.worker.end','contrast'))
 		#in the worker case, 'fisher.noodles.result.mat' == fisher.results.var.name
 	}
 	else #combiner
