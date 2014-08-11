@@ -2,6 +2,7 @@
 #worker-in-sge-array: worker-in-sge-array (gets its worker id from SGE_TASK_ID and the number of workers from SGE_TASK_LAST)
 #worker:  worker my-worker-no workers-no (good for any parallel enviroment, including fork)
 #combine: combiner workers-no (good for any parallel enviroment, including fork)
+#everuthing happens in current directory!
 
 noodle.lenght<-1000
 noodle.code<-'M'
@@ -41,10 +42,10 @@ if (length(args) > 0)
 			stop('Second arg is not number')
 		if(suppressWarnings(is.na(workers.no<-as.integer(args[3]))))
 			stop('Third arg is not number')
-		if(my.worker.no<1 || my.worker.no>500)
+		if( my.worker.no>500)
 			stop('My number of worker is a strange (>500) number')
-		if(workers.no<2 || workers.no>100)
-			stop('Number of workers is a strange (<2) number')
+		if(workers.no<1)
+			stop('Number of workers is a strange (<1) number')
 		if(my.worker.no>workers.no)
 			stop('Number of workers is less than my worker no')
 		i.am.worker<-TRUE
@@ -54,8 +55,10 @@ if (length(args) > 0)
 			stop('combiner is to have one more args')
 		if(suppressWarnings(is.na(workers.no<-as.integer(args[2]))))
 			stop('Second arg is not number')
-		if(workers.no<2 || workers.no>100)
-			stop('Number of workers is a strange number')
+		if( workers.no>500)
+			stop('My number of worker is a strange (>500) number')
+		if(workers.no<1)
+			stop('Number of workers is a strange (<1) number')
 		i.am.combiner<-TRUE
 	} else
 		stop('First arg is not a \'worker-in-sge-array\',\'worker\' or \'combiner\'')
@@ -177,13 +180,56 @@ if(!noodles.fisher.results.loaded)
 			message('converting to dataframe')
 			assign(fisher.results.var.name,as.data.frame(fisher.noodles.result.mat))
 			message('done\n')
+			message('Saving...\n')
+			save(file=resultfilename,list=c(fisher.results.var.name,'tests.number','contrast'))
+		} else #worker
+		{
+			message('Saving...\n')
+			save(file=resultfilename,list=c(fisher.results.var.name,'noodles.number','my.worker.no','my.worker.start','workers.no','my.worker.end','contrast'))
 		}
-		message('Saving...\n')
-		save(file=resultfilename,list=c(fisher.results.var.name,'noodles.number','my.worker.no','my.worker.start','workers.no','my.worker.end','contrast'))
+		message('done...\n')
 		#in the worker case, 'fisher.noodles.result.mat' == fisher.results.var.name
 	}
 	else #combiner
 	{
 		message('Combiner started...\n')
+		#testing the folder
+	 	rdalist=dir(pattern='noodles.M.fisher.results.worker*')
+		if(length(rdalist)!=workers.no)
+			stop('combiner: folder has other noodles.M.fisher.results.worker.NN.Rda files than the workers.no.')
+		worker.no<-1
+		loadfilename<-paste0('noodles.',noodle.code,'.fisher.results.worker.',worker.no,'.Rda')
+		load(loadfilename)
+		prev.contrast<-contrast
+		if (1 != my.worker.no)
+			stop('Combiner error: first file has non-1 my.worker.start')
+		if (1 != my.worker.start)
+			stop('Combiner error: first file has non-1 my.worker.start')
+		prev.worker.no<-my.worker.no
+		prev.worker.end<-my.worker.end
+		first.noodles.number<-noodles.number
+		combinedresult<-fisher.noodles.result.mat
+		for (worker.no in 2:workers.no)
+		{
+			loadfilename<-paste0('noodles.',noodle.code,'.fisher.results.worker.',worker.no,'.Rda')
+			load(loadfilename)
+			prev.contrast<-contrast
+			if (worker.no != my.worker.no)
+				stop('Combiner error: worker.no and number of file differ')
+			if (prev.worker.end+1 != my.worker.start)
+				stop('Combiner error:  my.worker.start is not prev.worker.end+1')
+			if(first.noodles.number!=noodles.number)
+				stop('Combiner error: noodles.number varies')
+			prev.worker.no<-my.worker.no
+			prev.worker.end<-my.worker.end
+			combinedresult<-rbind(combinedresult,fisher.noodles.result.mat)
+		}
+		if (prev.worker.end != noodles.number)
+			stop(paste0('Combiner error: the combined crowd is ', prev.worker.end, ' length while there are ', noodles.number,' noodles.'))
+		message('converting to dataframe')
+		assign(fisher.results.var.name,as.data.frame(combinedresult))
+		message('done\n')
+		message('Saving...\n')
+		save(file=resultfilename,list=c(fisher.results.var.name,'tests.number','contrast'))
 	}
 }
