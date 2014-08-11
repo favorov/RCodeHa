@@ -150,7 +150,7 @@ if(!noodles.fisher.results.loaded)
 		}
 		else
 		{
-			tests.number<-noodles.number %/% workers.no 
+			tests.number<-noodles.number %/% workers.no + ifelse(noodles.number %% workers.no > 0,1,0) #if remainder is zero, / is ok 
 			my.worker.start<-1+tests.number*(my.worker.no-1)
 			my.worker.end<-min(my.worker.start+tests.number-1,noodles.number)
 		}
