@@ -150,9 +150,13 @@ if(!noodles.fisher.results.loaded)
 		}
 		else
 		{
-			tests.number<-noodles.number %/% workers.no + ifelse(noodles.number %% workers.no > 0,1,0) #if remainder is zero, / is ok 
-			my.worker.start<-1+tests.number*(my.worker.no-1)
-			my.worker.end<-min(my.worker.start+tests.number-1,noodles.number)
+			step.tests.number<-noodles.number %/% workers.no + ifelse(noodles.number %% workers.no > 0,1,0) #if remainder is zero, / is ok 
+			my.worker.start<-1+step.tests.number*(my.worker.no-1)
+			my.worker.end<-min(my.worker.start+step.tests.number-1,noodles.number)
+			tests.number<-my.worker.end-my.worker.start+1 
+			# real number of tests, critical for the last worker when my.worker.end==noodles.number 
+			# and thus tests.number < step.tests.number
+
 		}
 	
 		message('create result matrix')
@@ -161,8 +165,9 @@ if(!noodles.fisher.results.loaded)
 		colnames(fisher.noodles.result.mat)<-c('fisher.p.values','meth.in.normals.ratio','meth.in.tumors.ratio','OR','CI_95_L','CI_95_H') 
 		
 		revcontrast<-!contrast
-		report.every<-tests.number %/% 100
+		report.every<-step.tests.number %/% 100
 		message('fill result matrix')
+
 		for (rown in 1:tests.number) 	
 		{
 			therown<-rown+my.worker.start-1
