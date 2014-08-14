@@ -235,6 +235,7 @@ if(!noodles.fisher.results.loaded)
 		assign(fisher.results.var.name,as.data.frame(combinedresult))
 		message('done\n')
 		message('Saving...\n')
+		tests.number<-noodles.number
 		save(file=resultfilename,list=c(fisher.results.var.name,'tests.number','contrast'))
 	}
 }
