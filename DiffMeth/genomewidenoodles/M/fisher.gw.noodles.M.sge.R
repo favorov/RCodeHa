@@ -19,6 +19,9 @@ if (length(args) > 0)
 		stop('First argument is unknown!')
 	if( 'worker-in-sge-array' == args[1] )
 	{
+		task.step<- -1
+		task.first<- -1
+		task.step<- -1
 		if (length(args)>1)
 			stop('worker-in-sge-array is to be the only arg')
 		if(my.worker.no<-as.integer(Sys.getenv('SGE_TASK_ID', unset = "-1"))<0)
@@ -28,7 +31,7 @@ if (length(args) > 0)
 		if(task.first<-as.integer(Sys.getenv('SGE_TASK_FIRST', unset = "-1"))<0)
 			stop('Worker-in-sge-array run not in sge array (no SGE_TASK_FIRST set)')
 		if(task.first!=1)
-			stop(paste0('Worker-in-sge-array run; SGE_TASK_FIRST!=1 It is',task.first))
+			stop(paste0('Worker-in-sge-array run; SGE_TASK_FIRST!=1 It is ',task.first))
 		if(task.step<-as.integer(Sys.getenv('SGE_TASK_STEP', unset = "-1"))<0)
 			stop('Worker-in-sge-array run not in sge array (no SGE_TASK_STEP set)')
 		if(task.step!=1)
