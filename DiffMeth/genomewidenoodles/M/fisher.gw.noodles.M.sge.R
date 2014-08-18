@@ -1,5 +1,4 @@
 #the script work without parallel frame if you just run it
-#worker-in-sge-array: worker-in-sge-array (gets its worker id from SGE_TASK_ID and the number of workers from SGE_TASK_LAST)
 #worker:  worker my-worker-no workers-no (good for any parallel enviroment, including fork)
 #combine: combiner workers-no (good for any parallel enviroment, including fork)
 #everuthing happens in current directory!
@@ -15,29 +14,9 @@ i.am.alone<-FALSE
 
 if (length(args) > 0)
 {
-	if (! args[1] %in% c('worker-in-sge-array','worker','combiner'))
+	if (! args[1] %in% c('worker','combiner'))
 		stop('First argument is unknown!')
-	if( 'worker-in-sge-array' == args[1] )
-	{
-		task.step<- -1
-		task.first<- -1
-		task.step<- -1
-		if (length(args)>1)
-			stop('worker-in-sge-array is to be the only arg')
-		if(my.worker.no<-as.integer(Sys.getenv('SGE_TASK_ID', unset = "-1"))<0)
-			stop('Worker-in-sge-array run not in sge array (no SGE_TASK_ID set)')
-		if(task.last<-as.integer(Sys.getenv('SGE_TASK_LAST', unset = "-1"))<0)
-			stop('Worker-in-sge-array run not in sge array (no SGE_TASK_LAST set)')
-		if(task.first<-as.integer(Sys.getenv('SGE_TASK_FIRST', unset = "-1"))<0)
-			stop('Worker-in-sge-array run not in sge array (no SGE_TASK_FIRST set)')
-		if(task.first!=1)
-			stop(paste0('Worker-in-sge-array run; SGE_TASK_FIRST!=1 It is ',task.first))
-		if(task.step<-as.integer(Sys.getenv('SGE_TASK_STEP', unset = "-1"))<0)
-			stop('Worker-in-sge-array run not in sge array (no SGE_TASK_STEP set)')
-		if(task.step!=1)
-			stop('Worker-in-sge-array run; SGE_TASK_STEP!=1')
-		i.am.worker<-TRUE
-	} else if ('worker' == args[1] )
+	if ('worker' == args[1] )
 	{
 		if (length(args)!=3)
 			stop('worker is to have two more args')
@@ -64,7 +43,7 @@ if (length(args) > 0)
 			stop('Number of workers is a strange (<1) number')
 		i.am.combiner<-TRUE
 	} else
-		stop('First arg is not a \'worker-in-sge-array\',\'worker\' or \'combiner\'')
+		stop('First arg is not a \'worker\' or \'combiner\'')
 } else
 	i.am.alone<-TRUE
 
