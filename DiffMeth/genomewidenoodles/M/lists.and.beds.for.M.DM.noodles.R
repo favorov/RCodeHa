@@ -1,4 +1,4 @@
-if (!suppressWarnings(require('Differential.Coverage')))
+if (!suppressWarnings(require('differential.coverage')))
 {
 	if (!suppressWarnings(require('devtools')))
 	{
@@ -6,9 +6,9 @@ if (!suppressWarnings(require('Differential.Coverage')))
 		biocLite("devtools")
 		library("devtools")
 	}
-	install_github('Differential.Coverage','favorov')
-	#load_all('../../../../differential.coverage/')
-	library('Differential.Coverage')
+	install_github('favorov/differential.coverage')
+	#load_all('../../../../../differential.coverage/')
+	library('differential.coverage')
 }
 
 #we output: DM.M.noodles.bonf.bed - for Bonferroni-corrected p-val<0.05
@@ -60,7 +60,7 @@ DM.M.noodles<-noodles.M[DM.M.noodles.indices]
 DM.M.noodles$p.value<-fisher.noodles.M.result$fisher.p.values[DM.M.noodles.indices]
 DM.M.noodles$ishyper<-fisher.noodles.M.result$CI_95_L[DM.M.noodles.indices]>1
 
-DM.Genes<-gene.list.by.overlap(noodles=DM.M.noodles,flanks=flanks)
+DM.Genes<-genes.with.TSS.covered(noodles=DM.M.noodles,flanks=flanks)
 
 DM.Genes.df<-as(DM.Genes,'data.frame')
 
@@ -79,7 +79,7 @@ close(con)
 #bonferroni with flanks 100000
 message('bonferroni,flanks 100000')
 
-DM.Genes<-gene.list.by.overlap(noodles=DM.M.noodles,flanks=100000)
+DM.Genes<-genes.with.TSS.covered(noodles=DM.M.noodles,flanks=100000)
 
 DM.Genes.df<-as(DM.Genes,'data.frame')
 
@@ -90,7 +90,7 @@ write.table(DM.Genes.df,file='DM.M.noodles.bonf.adjacent.genes.100000.tsv',sep='
 #bonferroni with flanks 1000000
 message('bonferroni,flanks 1000000')
 
-DM.Genes<-gene.list.by.overlap(noodles=DM.M.noodles,flanks=1000000)
+DM.Genes<-genes.with.TSS.covered(noodles=DM.M.noodles,flanks=1000000)
 
 DM.Genes.df<-as(DM.Genes,'data.frame')
 
@@ -105,7 +105,7 @@ DM.M.noodles<-noodles.M[DM.M.noodles.indices]
 DM.M.noodles$p.value<-fisher.noodles.M.result$fisher.p.values[DM.M.noodles.indices]
 DM.M.noodles$ishyper<-fisher.noodles.M.result$CI_95_L[DM.M.noodles.indices]>1
 
-DM.Genes<-gene.list.by.overlap(noodles=DM.M.noodles,flanks=flanks)
+DM.Genes<-genes.with.TSS.covered(noodles=DM.M.noodles,flanks=flanks)
 
 DM.Genes.df<-as(DM.Genes,'data.frame')
 
@@ -124,7 +124,7 @@ close(con)
 #fdr with no flanks
 message('fdr/no flanks')
 
-DM.Genes<-gene.list.by.overlap(noodles=DM.M.noodles,flanks=0)
+DM.Genes<-genes.with.TSS.covered(noodles=DM.M.noodles,flanks=0)
 
 DM.Genes.df<-as(DM.Genes,'data.frame')
 
@@ -135,7 +135,7 @@ write.table(DM.Genes.df,file='DM.M.noodles.fdr.adjacent.genes.noflanks.tsv',sep=
 #fdr with 100 000 flanks
 message('fdr/100 000 flanks')
 
-DM.Genes<-gene.list.by.overlap(noodles=DM.M.noodles,flanks=100000)
+DM.Genes<-genes.with.TSS.covered(noodles=DM.M.noodles,flanks=100000)
 
 DM.Genes.df<-as(DM.Genes,'data.frame')
 
