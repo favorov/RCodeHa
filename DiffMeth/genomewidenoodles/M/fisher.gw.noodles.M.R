@@ -97,7 +97,7 @@ if(!noodles.fisher.results.loaded)
 
 		if(file.exists(noodles.file))
 		{
-			loaded<-load('noodles.M.Rda')
+			loaded<-load(noodles.file)
 			if (noodles.methylation.var.name %in% loaded) 
 				if (class(get(noodles.methylation.var.name))=='data.frame')
 					if (noodles.ranges.var.name %in% loaded)
