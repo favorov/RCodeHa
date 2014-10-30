@@ -74,7 +74,7 @@ if(!noodles.fisher.results.loaded)
 	if(i.am.alone || i.am.worker) 
 	{
 		
-		if (!suppressWarnings(require('Differential.Coverage')))
+		if (!suppressWarnings(require('differential.coverage')))
 		{
 			if (!suppressWarnings(require('devtools')))
 			{
@@ -82,9 +82,9 @@ if(!noodles.fisher.results.loaded)
 				biocLite("devtools")
 				library("devtools")
 			}
-			install_github('Differential.Coverage','favorov')
+			install_github('favorov/differential.coverage')
 			#load_all('../../../../../differential.coverage/')
-			library('Differential.Coverage')
+			library('differential.coverage')
 		}
 
 		#we need this to load - we are going to Fisherise
