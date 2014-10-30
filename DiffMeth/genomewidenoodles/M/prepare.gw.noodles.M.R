@@ -1,4 +1,4 @@
-if (!suppressWarnings(require('Differential.Coverage')))
+if (!suppressWarnings(require('differential.coverage')))
 {
 	if (!suppressWarnings(require('devtools')))
 	{
@@ -6,9 +6,9 @@ if (!suppressWarnings(require('Differential.Coverage')))
 		biocLite("devtools")
 		library("devtools")
 	}
-	install_github('Differential.Coverage','favorov')
+	install_github('favorov/Differential.Coverage')
 	#load_all('../../../../differential.coverage/')
-	library('Differential.Coverage')
+	library('differential.coverage')
 }
 
 noodles.M.loaded<-FALSE
