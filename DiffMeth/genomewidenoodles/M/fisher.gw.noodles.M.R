@@ -147,7 +147,7 @@ if(!noodles.fisher.results.loaded)
 		colnames(fisher.noodles.result.mat)<-c('fisher.p.values','meth.in.normals.ratio','meth.in.tumors.ratio','OR','CI_95_L','CI_95_H') 
 		
 		revcontrast<-!contrast
-		report.every<-step.tests.number %/% 100
+		report.every<-tests.number %/% 100
 		message('fill result matrix')
 
 		for (rown in 1:tests.number) 	
