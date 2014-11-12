@@ -181,9 +181,9 @@ if(!noodles.fisher.results.loaded)
 	{
 		message('Combiner started...\n')
 		#testing the folder
-	 	rdalist=dir(pattern='noodles.M.fisher.results.worker*')
+	 	rdalist<-dir(pattern=paste0('noodles.',noodle.code,'.fisher.results.worker.[0-9]*.Rda'))
 		if(length(rdalist)!=workers.no)
-			stop('combiner: folder has other noodles.M.fisher.results.worker.NN.Rda files than the workers.no.')
+			stop(paste0('combiner: folder has other noodles.',noodle.code,'.fisher.results.worker.NN.Rda files (',length(rdalist),') than the workers.no (',workers.no,').'))
 		worker.no<-1
 		loadfilename<-paste0('noodles.',noodle.code,'.fisher.results.worker.',worker.no,'.Rda')
 		load(loadfilename)
