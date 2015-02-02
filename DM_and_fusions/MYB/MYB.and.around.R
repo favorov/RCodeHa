@@ -1,4 +1,4 @@
-if (!suppressWarnings(require('Differential.Coverage')))
+if (!suppressWarnings(require('differential.coverage')))
 {
 	if (!suppressWarnings(require('devtools')))
 	{
@@ -6,19 +6,48 @@ if (!suppressWarnings(require('Differential.Coverage')))
 		biocLite("devtools")
 		library("devtools")
 	}
-	install_github('Differential.Coverage','favorov')
+	install_github('favorov/differential.coverage')
 	#load_all('../../../../differential.coverage/')
-	library('Differential.Coverage')
+	library('differential.coverage')
 }
 
-MYF_id <- select(
+fus_ids <- select(
 	org.Hs.eg.db,
-	keys=c('MYB'),
+	keys=c('MYB','NFIB'),
 	columns=c('ENTREZID'),
 	keytype='SYMBOL'
 )
 
+area=100000
+noodle.length<-1000
+
 genes<- genes(TxDb.Hsapiens.UCSC.hg19.knownGene)
+
+MYF_area<-genes[genes$gene_id==fus_ids[1,2]]
+NFIB_area<-genes[genes$gene_id==fus_ids[2,2]]
+
+start(MYF_area)<-start(MYF_area)-area
+end(MYF_area)<-end(MYF_area)+area
+
+noodles_in_MYF_area<-
+	GRanges(seqinfo=seqinfo(genes),ranges=IRanges(seq(start(MYF_area),end(MYF_area),noodle.length),width=noodle.length),seqnames<-seqnames(MYF_area))
+
+start(NFIB_area)<-start(NFIB_area)-area
+end(NFIB_area)<-end(NFIB_area)+area
+
+noodles_in_NFIB_area<-
+	GRanges(seqinfo=seqinfo(genes),ranges=IRanges(seq(start(NFIB_area),end(NFIB_area),noodle.length),width=noodle.length),seqnames<-seqnames(NFIB_area))
+
+noodles<-c(noodles_in_MYF_area,noodles_in_NFIB_area)
+
+#so, we have noodles. Now, let's read the fusion list
+
+fusions<-read.table('../../../WGS/fusions/OnlyInDisease.fullinfo.sorted',stringsAsFactors = FALSE)
+
+the_fusion_samples<-unique(fusions[(fusions[,2]=='MYB' & fusions[,5]=='NFIB') | (fusions[,2]=='NFIB' & fusions[,5]=='MYB'),1])
+
+
+
 
 stop('qq')
 
