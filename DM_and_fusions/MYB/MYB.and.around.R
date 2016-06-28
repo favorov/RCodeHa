@@ -46,7 +46,12 @@ fusions<-read.table('../../../WGS/fusions/OnlyInDisease.fullinfo.sorted',strings
 
 the_fusion_samples<-unique(fusions[(fusions[,2]=='MYB' & fusions[,5]=='NFIB') | (fusions[,2]=='NFIB' & fusions[,5]=='MYB'),1])
 
+beddir<-'../../../Methylation/bedfiles/'
+bedfiles<-dir(beddir) 
+bedfiles<-bedfiles[grep('All_',bedfiles,invert=TRUE)] # remove two 'All_' files
+bed.ids<-sapply(strsplit(bedfiles,split='_'),function(x){if(x[2]!='DNA') x[2] else x[3]}) #somhere id in pos 2, somewhere in 3
 
+cancer.bed.ids<-bed.ids[grep('Normal',bed.ids,invert=TRUE)]
 
 
 stop('qq')
