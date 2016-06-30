@@ -15,10 +15,154 @@ options(width=100)
 
 `r format(Sys.Date(), "%d %b %Y")` 
 
-```{r prepare}
+```{r prepare }
 source('prepare.meth.data.for.as.junctions.R')
+mbd.sample.ids<-colnames(mbd.as.junction.coverage)
+rna.sample.ids<-names(mcols(as.junction.ranges))
+
+tests.number<-dim(mbd.as.junction.coverage)[1]
+
 ```
 
 # Is there any DM signal on the AS junctions?
+### Here, we omit the ranks of the AS junctions
+```{r DM in AS junctions, echo=TRUE}
 
+fisher.mbd.in.as.result.loaded<-FALSE
+if ('fisher.mbd.in.as.result' %in% ls() &&
+class(fisher.mbd.in.as.result)=='data.frame')
+fisher.mbd.in.as.result.loaded<-TRUE
+#if they are already in the space, do nothing
 
+if(
+	(! fisher.mbd.in.as.result.loaded) && 
+	file.exists('fisher.mbd.in.as.result.Rda') &&
+	'fisher.mbd.in.as.result' %in% load('fisher.mbd.in.as.result.Rda') &&
+	class(fisher.mbd.in.as.result)=='data.frame')
+{
+	message('Fisher result loaded...')
+	fisher.mbd.in.as.result.loaded<-TRUE
+}
+
+if(!fisher.mbd.in.as.result.loaded)
+{
+	mbd.contrast<-logical(length(mbd.sample.ids))
+	mbd.contrast[grep('HN',mbd.sample.ids)]<-TRUE
+
+	mbd.norm.no<-length(which(!mbd.contrast))
+	mbd.tumor.no<-length(which(mbd.contrast))
+
+	fishtabs<-as.matrix(prepare.tabulated.fisher(mbd.tumor.no,mbd.norm.no))
+	#prepare Fisher table
+
+	message('create result matrix')
+
+	fisher.mbd.in.as.result.mat<-matrix(fishtabs[1,],ncol=6,nrow=tests.number,byrow=TRUE)
+
+	colnames(fisher.mbd.in.as.result.mat)<-
+			c('fisher.p.values','meth.in.normals.ratio','meth.in.tumors.ratio','OR','CI_95_L','CI_95_H') 
+
+	revcontrast<-!mbd.contrast
+	report.every<-tests.number %/% 100
+	message('fill result matrix')
+	for (rown in 1:tests.number) 	
+	{
+		if (!(rown %% report.every)) message(rown)
+		theraw<-mbd.as.junction.coverage[rown,]
+		aslogic<-as.logical(theraw)
+		MY<-sum(aslogic & mbd.contrast)
+		MN<-sum(aslogic & revcontrast)
+		if (0==MN && 0==MY) next
+		fishres<-fishtabs[tab.fisher.row.no(mbd.tumor.no,mbd.norm.no,MY,MN),]
+		fisher.mbd.in.as.result.mat[rown,]<-fishres
+	}
+	message('converting to dataframe')
+	fisher.mbd.in.as.result<-as.data.frame(fisher.mbd.in.as.result.mat)
+	save(file='fisher.mbd.in.as.result.Rda',list=c('fisher.mbd.in.as.result'))
+
+	message('done\n')
+}
+
+```
+The first test is quite simple. We take all the AS junctions and we perform exact Fisher test (Tumor,Normal)x(MBD signal presebce) for each of them. Then, we apply Bonferroni correction for number of AS junctions.
+```{r mbd.reliable, echo=TRUE}
+dm.reliable<-p.adjust(fisher.mbd.in.as.result[,1],method="bonferroni")<.05
+dm.reliable.report<-fisher.mbd.in.as.result[dm.reliable,]
+rownames(dm.reliable.report)<-names(as.junction.ranges)[dm.reliable]
+dm.reliable.report[,1:3]
+```
+DM regions are coordinated in the same gene. The difference can be in any direction.
+
+# Are there any AS regions with rank that corresponds to the MBD signal presence?
+### Here, we omit T/N classification
+
+We take junctions, one-by-one and test whether the methylation signal discriminate rannks by Wilcoxon test.
+First, we define the common set of samples in MBD and RNA.
+```{r common samples, echo=TRUE}
+mbd.to.rna.match <- match(mbd.sample.ids,rna.sample.ids)
+does.mdb.has.match <- !is.na(mbd.to.rna.match)
+mbd.sample.ids[does.mdb.has.match]
+```
+So, `r sum(does.mdb.has.match)` samples are common for `r length(mbd.sample.ids)` MBD samples and `r length(rna.sample.ids)` RNA samples.
+```{r calculate mbd to as rank, echo=TRUE}
+wilcoxon.as.rank.by.mbd.result.loaded<-FALSE
+if ('wilcoxon.as.rank.by.mbd.result' %in% ls() &&
+class(wilcoxon.as.rank.by.mbd.result)=='data.frame')
+wilcoxon.as.rank.by.mbd.result.loaded<-TRUE
+#if they are already in the space, do nothing
+
+if(
+	(! wilcoxon.as.rank.by.mbd.result.loaded) && 
+	file.exists('wilcoxon.as.rank.by.mbd.result.Rda') &&
+	'wilcoxon.as.rank.by.mbd.result' %in% load('wilcoxon.as.rank.by.mbd.result.Rda') &&
+	class(wilcoxon.as.rank.by.mbd.result)=='data.frame')
+{
+	message('Wilcoxon result loaded...')
+	wilcoxon.as.rank.by.mbd.result.loaded<-TRUE
+}
+
+if(!wilcoxon.as.rank.by.mbd.result.loaded)
+{
+	message('create result matrix')
+
+	wilcoxon.as.rank.by.mbd.result.mat<-matrix(c(1,0,0),nrow=tests.number,ncol=3,byrow=TRUE)
+
+	colnames(wilcoxon.as.rank.by.mbd.result.mat)<-
+			c('p.value','obs inv#','exp inv#') 
+	
+	report.every<-tests.number %/% 100
+	message('fill result matrix')
+	for (rown in 1:tests.number) 	
+	{
+		if (!(rown %% report.every)) message(rown)
+		is.meth<-as.logical(mbd.as.junction.coverage[rown,does.mdb.has.match])
+		if(!sum(is.meth) || !sum(!is.meth)) next
+		ranks<-unlist(mcols(as.junction.ranges)[rown,mbd.to.rna.match[does.mdb.has.match]])
+		wilc<-suppressWarnings(wilcox.test(ranks[is.meth],ranks[!is.meth]))
+		if(is.na(wilc$p.value)) next
+		wilcoxon.as.rank.by.mbd.result.mat[rown,1]<-wilc$p.value	
+		wilcoxon.as.rank.by.mbd.result.mat[rown,2]<-wilc$statistic
+		wilcoxon.as.rank.by.mbd.result.mat[rown,3]<-(sum(is.meth)*sum(!is.meth))/2
+	}
+	message('converting to dataframe')
+	wilcoxon.as.rank.by.mbd.result<-as.data.frame(wilcoxon.as.rank.by.mbd.result.mat)
+	save(file='wilcoxon.as.rank.by.mbd.result.Rda',list=c('wilcoxon.as.rank.by.mbd.result'))
+
+	message('done\n')
+}
+
+```
+First, let's try to abjust by Bonferroni
+```{r as rank by mbd bonferroni, echo=TRUE}
+as.by.mbd.reliable.bonf<-p.adjust(wilcoxon.as.rank.by.mbd.result$p.value,method="bonferroni")<0.05
+as.by.mbd.reliable.bonf.result<-wilcoxon.as.rank.by.mbd.result[as.by.mbd.reliable.bonf,]
+rownames(as.by.mbd.reliable.bonf.result)<-names(as.junction.ranges)[as.by.mbd.reliable.bonf]
+as.by.mbd.reliable.bonf.result
+```
+And, by BH FDR we get the same result:
+```{r as rank by mbd fdr, echo=TRUE}
+as.by.mbd.reliable.fdr<-p.adjust(wilcoxon.as.rank.by.mbd.result$p.value,method="fdr")<0.1
+as.by.mbd.reliable.fdr.result<-wilcoxon.as.rank.by.mbd.result[as.by.mbd.reliable.fdr,]
+rownames(as.by.mbd.reliable.fdr.result)<-names(as.junction.ranges)[as.by.mbd.reliable.fdr]
+as.by.mbd.reliable.fdr.result
+```
