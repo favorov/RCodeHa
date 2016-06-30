@@ -26,7 +26,7 @@ tests.number<-dim(mbd.as.junction.coverage)[1]
 
 # Is there any DM signal on the AS junctions?
 ### Here, we omit the ranks of the AS junctions
-```{r DM in AS junctions, echo=TRUE}
+```{r DM in AS junctions}
 
 fisher.mbd.in.as.result.loaded<-FALSE
 if ('fisher.mbd.in.as.result' %in% ls() &&
@@ -104,7 +104,7 @@ does.mdb.has.match <- !is.na(mbd.to.rna.match)
 mbd.sample.ids[does.mdb.has.match]
 ```
 So, `r sum(does.mdb.has.match)` samples are common for `r length(mbd.sample.ids)` MBD samples and `r length(rna.sample.ids)` RNA samples.
-```{r calculate mbd to as rank, echo=TRUE}
+```{r calculate mbd to as rank}
 wilcoxon.as.rank.by.mbd.result.loaded<-FALSE
 if ('wilcoxon.as.rank.by.mbd.result' %in% ls() &&
 class(wilcoxon.as.rank.by.mbd.result)=='data.frame')
