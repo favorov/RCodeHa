@@ -91,9 +91,16 @@ dm.reliable.report<-fisher.mbd.in.as.result[dm.reliable,]
 rownames(dm.reliable.report)<-names(as.junction.ranges)[dm.reliable]
 dm.reliable.report[,1:3]
 ```
+
+Here is the list of the genes (for reference)
+```{r genes list, echo=TRUE}
+cat(unique(sapply(strsplit(names(as.junction.ranges[dm.reliable]),'.',fixed = TRUE),'[',1)))
+
+```
+
 DM regions are coordinated in the same gene. The difference can be in any direction.
 
-# Are there any AS regions with rank that corresponds to the MBD signal presence?
+# Are there any AS regions with rank that corresponds to the MBD signal presence locally?
 ### Here, we omit T/N classification
 
 We take junctions, one-by-one and test whether the methylation signal discriminate rannks by Wilcoxon test.
@@ -104,30 +111,31 @@ does.mdb.has.match <- !is.na(mbd.to.rna.match)
 mbd.sample.ids[does.mdb.has.match]
 ```
 So, `r sum(does.mdb.has.match)` samples are common for `r length(mbd.sample.ids)` MBD samples and `r length(rna.sample.ids)` RNA samples.
-```{r calculate mbd to as rank}
-wilcoxon.as.rank.by.mbd.result.loaded<-FALSE
-if ('wilcoxon.as.rank.by.mbd.result' %in% ls() &&
-class(wilcoxon.as.rank.by.mbd.result)=='data.frame')
-wilcoxon.as.rank.by.mbd.result.loaded<-TRUE
+
+```{r calculate selfreg mbd to as rank}
+wilcoxon.as.local.reg.by.mbd.result.loaded<-FALSE
+if ('wilcoxon.as.local.reg.by.mbd.result' %in% ls() &&
+class(wilcoxon.as.local.reg.by.mbd.result)=='data.frame')
+wilcoxon.as.local.reg.by.mbd.result.loaded<-TRUE
 #if they are already in the space, do nothing
 
 if(
-	(! wilcoxon.as.rank.by.mbd.result.loaded) && 
-	file.exists('wilcoxon.as.rank.by.mbd.result.Rda') &&
-	'wilcoxon.as.rank.by.mbd.result' %in% load('wilcoxon.as.rank.by.mbd.result.Rda') &&
-	class(wilcoxon.as.rank.by.mbd.result)=='data.frame')
+	(! wilcoxon.as.local.reg.by.mbd.result.loaded) && 
+	file.exists('wilcoxon.as.local.reg.by.mbd.result.Rda') &&
+	'wilcoxon.as.local.reg.by.mbd.result' %in% load('wilcoxon.as.local.reg.by.mbd.result.Rda') &&
+	class(wilcoxon.as.local.reg.by.mbd.result)=='data.frame')
 {
 	message('Wilcoxon result loaded...')
-	wilcoxon.as.rank.by.mbd.result.loaded<-TRUE
+	wilcoxon.as.local.reg.by.mbd.result.loaded<-TRUE
 }
 
-if(!wilcoxon.as.rank.by.mbd.result.loaded)
+if(!wilcoxon.as.local.reg.by.mbd.result.loaded)
 {
 	message('create result matrix')
 
-	wilcoxon.as.rank.by.mbd.result.mat<-matrix(c(1,0,0),nrow=tests.number,ncol=3,byrow=TRUE)
+	wilcoxon.as.local.reg.by.mbd.result.mat<-matrix(c(1,0,0),nrow=tests.number,ncol=3,byrow=TRUE)
 
-	colnames(wilcoxon.as.rank.by.mbd.result.mat)<-
+	colnames(wilcoxon.as.local.reg.by.mbd.result.mat)<-
 			c('p.value','obs inv#','exp inv#') 
 	
 	report.every<-tests.number %/% 100
@@ -138,31 +146,133 @@ if(!wilcoxon.as.rank.by.mbd.result.loaded)
 		is.meth<-as.logical(mbd.as.junction.coverage[rown,does.mdb.has.match])
 		if(!sum(is.meth) || !sum(!is.meth)) next
 		ranks<-unlist(mcols(as.junction.ranges)[rown,mbd.to.rna.match[does.mdb.has.match]])
-		wilc<-suppressWarnings(wilcox.test(ranks[is.meth],ranks[!is.meth]))
+		wilc<-wilcox.test(jitter(ranks,factor=0.001)~!(is.meth))
 		if(is.na(wilc$p.value)) next
-		wilcoxon.as.rank.by.mbd.result.mat[rown,1]<-wilc$p.value	
-		wilcoxon.as.rank.by.mbd.result.mat[rown,2]<-wilc$statistic
-		wilcoxon.as.rank.by.mbd.result.mat[rown,3]<-(sum(is.meth)*sum(!is.meth))/2
+		wilcoxon.as.local.reg.by.mbd.result.mat[rown,1]<-wilc$p.value	
+		wilcoxon.as.local.reg.by.mbd.result.mat[rown,2]<-wilc$statistic
+		wilcoxon.as.local.reg.by.mbd.result.mat[rown,3]<-(sum(is.meth)*sum(!is.meth))/2
 	}
 	message('converting to dataframe')
-	wilcoxon.as.rank.by.mbd.result<-as.data.frame(wilcoxon.as.rank.by.mbd.result.mat)
-	save(file='wilcoxon.as.rank.by.mbd.result.Rda',list=c('wilcoxon.as.rank.by.mbd.result'))
+	wilcoxon.as.local.reg.by.mbd.result<-as.data.frame(wilcoxon.as.local.reg.by.mbd.result.mat)
+	save(file='wilcoxon.as.local.reg.by.mbd.result.Rda',list=c('wilcoxon.as.local.reg.by.mbd.result'))
 
 	message('done\n')
 }
 
+as.by.mbd.selfreg.reliable.pval<-wilcoxon.as.local.reg.by.mbd.result$p.value
 ```
-First, let's try to abjust by Bonferroni
-```{r as rank by mbd bonferroni, echo=TRUE}
-as.by.mbd.reliable.bonf<-p.adjust(wilcoxon.as.rank.by.mbd.result$p.value,method="bonferroni")<0.05
-as.by.mbd.reliable.bonf.result<-wilcoxon.as.rank.by.mbd.result[as.by.mbd.reliable.bonf,]
-rownames(as.by.mbd.reliable.bonf.result)<-names(as.junction.ranges)[as.by.mbd.reliable.bonf]
-as.by.mbd.reliable.bonf.result
+Let's look what we have. The minimal p-value for the self-regulation is `r min(as.by.mbd.selfreg.reliable.pval)`. There are `r sum(p.adjust(as.by.mbd.selfreg.reliable.pval,method="bonferroni")<0.05)` p-calues passed Bofferromi for # of tests (junctions). There are `r sum(p.adjust(as.by.mbd.selfreg.reliable.pval,method="BH")<0.1)` passed Benjamini-Hoochberg with q-value<0.1 .
+
+And, the best junction are
+```{r best selfreg, echo=TRUE}
+names(as.junction.ranges)[which(p.adjust(as.by.mbd.selfreg.reliable.pval,method="none")<0.00005)]
 ```
-And, by BH FDR we get the same result:
-```{r as rank by mbd fdr, echo=TRUE}
-as.by.mbd.reliable.fdr<-p.adjust(wilcoxon.as.rank.by.mbd.result$p.value,method="fdr")<0.1
-as.by.mbd.reliable.fdr.result<-wilcoxon.as.rank.by.mbd.result[as.by.mbd.reliable.fdr,]
-rownames(as.by.mbd.reliable.fdr.result)<-names(as.junction.ranges)[as.by.mbd.reliable.fdr]
-as.by.mbd.reliable.fdr.result
+
+# Are there any AS regions with rank that corresponds to the _cis_ MBD signal presence?
+### Here, we omit T/N classification. 
+
+Actually, we do the same as in prevuious story, but we look not only for same-junction regulation (self-regulation) but for all same-gene junctions.
+
+```{r prepare cisregulation}
+
+genes<-unique(sapply(strsplit(names(as.junction.ranges),'.',fixed = TRUE),'[',1))
+
+wilcoxon.as.cis.reg.by.mbd.result.loaded<-FALSE
+if ('wilcoxon.as.cis.reg.by.mbd.result' %in% ls() &&
+class(wilcoxon.as.cis.reg.by.mbd.result)=='data.frame')
+wilcoxon.as.cis.reg.by.mbd.result.loaded<-TRUE
+#if they are already in the space, do nothing
+
+if(
+	(! wilcoxon.as.cis.reg.by.mbd.result.loaded) && 
+	file.exists('wilcoxon.as.cis.reg.by.mbd.result.Rda') &&
+	'wilcoxon.as.cis.reg.by.mbd.result' %in% load('wilcoxon.as.cis.reg.by.mbd.result.Rda') &&
+	class(wilcoxon.as.cis.reg.by.mbd.result)=='data.frame')
+{
+	message('Wilcoxon result loaded...')
+	wilcoxon.as.cis.reg.by.mbd.result.loaded<-TRUE
+}
+
+if(!wilcoxon.as.cis.reg.by.mbd.result.loaded)
+{
+	message('create result matrix')
+
+	wilcoxon.as.cis.reg.by.mbd.result.mat<-matrix(nrow=0,ncol=3)
+
+	colnames(wilcoxon.as.cis.reg.by.mbd.result.mat)<-
+			c('p.value','obs inv#','exp inv#') 
+	
+	message('fill cis result matrix')
+	for (gene in genes)
+	{
+		#if(!gene==genes[2]) next
+		#testing mode
+		message(gene)
+		the.gene.junctions<-grep(gene,names(as.junction.ranges))
+		l<-length(the.gene.junctions)
+		the.gene.result.mat<-matrix(c(1,0,0),nrow=l^2,ncol=3,byrow=TRUE)
+		colnames(the.gene.result.mat)<-c('p.value','obs inv#','exp inv#') 
+		for (i in 1:l)
+		{
+			is.meth<-as.logical(mbd.as.junction.coverage[the.gene.junctions[i],does.mdb.has.match])
+			if(!sum(is.meth) || !sum(!is.meth)) next
+			for (k in 1:l) 	
+			{
+				index<-(i-1)*l+k
+				ranks<-unlist(mcols(as.junction.ranges)[the.gene.junctions[k],mbd.to.rna.match[does.mdb.has.match]])
+				wilc<-wilcox.test(jitter(ranks,factor=0.001)~!(is.meth))
+				if(is.na(wilc$p.value)) next
+				the.gene.result.mat[index,1]<-wilc$p.value	
+				the.gene.result.mat[index,2]<-wilc$statistic
+				the.gene.result.mat[index,3]<-(sum(is.meth)*sum(!is.meth))/2
+			}
+		}
+		#in expand.grid, the second var is outer (slow), so first is k (as)
+		rownames(the.gene.result.mat)<-
+			apply(expand.grid(names(as.junction.ranges)[the.gene.junctions],names(as.junction.ranges)[the.gene.junctions]),1,
+				function(pair) paste0('as@',pair[1],'~dm@',pair[2]))
+		wilcoxon.as.cis.reg.by.mbd.result.mat<-rbind(wilcoxon.as.cis.reg.by.mbd.result.mat,the.gene.result.mat)
+	}
+	message('converting to dataframe')
+	wilcoxon.as.cis.reg.by.mbd.result<-as.data.frame(wilcoxon.as.cis.reg.by.mbd.result.mat)
+	save(file='wilcoxon.as.cis.reg.by.mbd.result.Rda',list=c('wilcoxon.as.cis.reg.by.mbd.result'))
+
+	message('done\n')
+}
+
+as.by.mbd.cisreg.reliable.pval<-wilcoxon.as.cis.reg.by.mbd.result$p.value
+
+
+
 ```
+
+
+<!--
+
+Trash and bricks
+Let's check the DM status of these two junctions:
+```{r DM for as.by.mbd.reliable.bonf, echo=TRUE }
+#as.by.mbd.reliable.bonf.result<-wilcoxon.as.local.reg.by.mbd.result[as.by.mbd.reliable.bonf,]
+#rownames(as.by.mbd.reliable.bonf.result)<-names(as.junction.ranges)[as.by.mbd.reliable.bonf]
+#as.by.mbd.reliable.bonf.result
+
+#dm.in.selfreg.reliable.report<-fisher.mbd.in.as.result[as.by.mbd.reliable.bonf,]
+#rownames(dm.in.selfreg.reliable.report)<-names(as.junction.ranges)[as.by.mbd.reliable.bonf]
+#dm.in.selfreg.reliable.report[,1:3]
+```
+Let's check the AS status of these two junctions:
+```{r AS for as.by.mbd.reliable.bonf, echo=TRUE }
+#as.in.selfreg.reliable.report<-mcols(as.junction.ranges)[as.by.mbd.reliable.bonf,]
+#rownames(as.in.selfreg.reliable.report)<-names(as.junction.ranges)[as.by.mbd.reliable.bonf]
+#as.in.selfreg.reliable.report
+```
+
+Let's check the AS vs DM status of these two junctions:
+```{r SELFREG for as.by.mbd.reliable.bonf, echo=TRUE }
+#selfreg.in.selfreg.reliable.report<-as.logical(mbd.as.junction.coverage[as.by.mbd.reliable.bonf,does.mdb.has.match])
+#rownames(as.in.selfreg.reliable.report)<-paste0('meth',names(as.junction.ranges)[as.by.mbd.reliable.bonf])
+#mcols(as.junction.ranges)[as.by.mbd.reliable.bonf,]
+#selfreg.in.selfreg.reliable.report
+```
+
+-->
