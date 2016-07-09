@@ -10,7 +10,7 @@ output:
 <!-- cache is off, we save all the neccessary things in Rda -->
 ```{r init, echo=FALSE, message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo=FALSE,message=FALSE,cache=FALSE,warning=FALSE,error=FALSE)
-options(width=100)
+options(width=120)
 ```
 
 `r format(Sys.Date(), "%d %b %Y")` 
@@ -163,7 +163,7 @@ as.by.mbd.selfreg.reliable.pval<-wilcoxon.as.local.reg.by.mbd.result$p.value
 ```
 Let's look what we have. The minimal p-value for the self-regulation is `r min(as.by.mbd.selfreg.reliable.pval)`. There are `r sum(p.adjust(as.by.mbd.selfreg.reliable.pval,method="bonferroni")<0.05)` p-calues passed Bofferromi for # of tests (junctions). There are `r sum(p.adjust(as.by.mbd.selfreg.reliable.pval,method="BH")<0.1)` passed Benjamini-Hoochberg with q-value<0.1 .
 
-And, the best junction are
+And, the best selr-reg junctions (uncorrected p < 0.00005 looks good, but it is killed by Bonferroni) are:
 ```{r best selfreg, echo=TRUE}
 names(as.junction.ranges)[which(p.adjust(as.by.mbd.selfreg.reliable.pval,method="none")<0.00005)]
 ```
@@ -242,7 +242,22 @@ if(!wilcoxon.as.cis.reg.by.mbd.result.loaded)
 
 as.by.mbd.cisreg.reliable.pval<-wilcoxon.as.cis.reg.by.mbd.result$p.value
 
+```
 
+Here is the table for all cis juntion-interations that pass FDR 5%
+
+```{r table cis fdr 5%, echo=TRUE}
+fdr5.cis.res<-wilcoxon.as.cis.reg.by.mbd.result[which(p.adjust(wilcoxon.as.cis.reg.by.mbd.result$p.value,method = 'BH')<0.05),]
+names.fdr5.cis.res<-unlist(strsplit(rownames(fdr5.cis.res),"[@.~]"))
+#as@FAT1.chr4:187539578-187630378~dm@FAT1.chr4:187519279-187521052
+annot.fdr5.cis.res<-data.frame(
+	gene=names.fdr5.cis.res[seq(2,length(names.fdr5.cis.res),6)],
+	alt.splice.region=names.fdr5.cis.res[seq(3,length(names.fdr5.cis.res),6)],
+	diff.met.region=names.fdr5.cis.res[seq(6,length(names.fdr5.cis.res),6)]
+)
+rownames(fdr5.cis.res)=NULL
+fdr5.cis.res.with.annot<-cbind(annot.fdr5.cis.res,fdr5.cis.res)
+fdr5.cis.res.with.annot
 
 ```
 
