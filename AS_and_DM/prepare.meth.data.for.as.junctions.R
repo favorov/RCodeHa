@@ -116,7 +116,7 @@ if(!noodles.as.genes.tables.loaded)
 		gene.chr<-invisible(suppressWarnings(select(TxDb.Hsapiens.UCSC.hg19.knownGene,keys=c(entrez),keytype='GENEID',columns=c('TXCHROM'))$TXCHROM))
 		noodstart<-gene.start-(gene.start %% noodlen) - expand*noodlen
 		noodend<-gene.end-(gene.end %% noodlen)+(expand+1)*noodlen
-		gene.noodles<-data.frame('chr'=gene.chr,'start'=seq(noodstart,noodend-noodlen,noodlen),'end'=seq(noodstart+noodlen,noodend,noodlen))
+		gene.noodles<-data.frame('chr'=gene.chr,'start'=seq(noodstart,noodend-noodlen,noodlen),'end'=seq(noodstart+noodlen-1,noodend,noodlen))
 		if(currentgenename!=gene) currentgenename<-paste0(currentgenename,'(',gene,')')
 		rownames(gene.noodles)<-paste0(currentgenename,'@',gene.noodles$chr,":",gene.noodles$start,'-',gene.noodles$end)
 		noodlesGRanges.gene <- GRanges(gene.noodles,seqinfo=nucl.chromosomes.hg19())
