@@ -125,7 +125,7 @@ if(
 	'wilcoxon.as.local.reg.by.mbd.result' %in% load('wilcoxon.as.local.reg.by.mbd.result.Rda') &&
 	class(wilcoxon.as.local.reg.by.mbd.result)=='data.frame')
 {
-	message('Wilcoxon result loaded...')
+	message('result loaded...')
 	wilcoxon.as.local.reg.by.mbd.result.loaded<-TRUE
 }
 
@@ -173,7 +173,9 @@ names(as.junction.ranges)[which(p.adjust(as.by.mbd.selfreg.reliable.pval,method=
 
 Actually, we do the same as in prevuious story, but we look not only for same-junction regulation (self-regulation) but for all same-gene junctions.
 
-```{r prepare cisregulation}
+###Wilcoxon test
+
+```{r prepare wilcoxon cisregulation}
 
 genes<-unique(sapply(strsplit(names(as.junction.ranges),'.',fixed = TRUE),'[',1))
 
@@ -189,13 +191,13 @@ if(
 	'wilcoxon.as.cis.reg.by.mbd.result' %in% load('wilcoxon.as.cis.reg.by.mbd.result.Rda') &&
 	class(wilcoxon.as.cis.reg.by.mbd.result)=='data.frame')
 {
-	message('Wilcoxon result loaded...')
+	message('wilcoxon cis result loaded...')
 	wilcoxon.as.cis.reg.by.mbd.result.loaded<-TRUE
 }
 
 if(!wilcoxon.as.cis.reg.by.mbd.result.loaded)
 {
-	message('create result matrix')
+	message('create wicloxon cis result matrix')
 
 	wilcoxon.as.cis.reg.by.mbd.result.mat<-matrix(nrow=0,ncol=3)
 
@@ -240,27 +242,36 @@ if(!wilcoxon.as.cis.reg.by.mbd.result.loaded)
 	message('done\n')
 }
 
-as.by.mbd.cisreg.reliable.pval<-wilcoxon.as.cis.reg.by.mbd.result$p.value
 
 ```
 
-Here is the table for all cis juntion-interations that pass FDR 5%
+Here is the table for all _cis_ juntion-interations that have Wilcoxon pass FDR 5%
 
-```{r table cis fdr 5%, echo=TRUE}
-fdr5.cis.res<-wilcoxon.as.cis.reg.by.mbd.result[which(p.adjust(wilcoxon.as.cis.reg.by.mbd.result$p.value,method = 'BH')<0.05),]
-names.fdr5.cis.res<-unlist(strsplit(rownames(fdr5.cis.res),"[@.~]"))
-#as@FAT1.chr4:187539578-187630378~dm@FAT1.chr4:187519279-187521052
-annot.fdr5.cis.res<-data.frame(
-	gene=names.fdr5.cis.res[seq(2,length(names.fdr5.cis.res),6)],
-	alt.splice.region=names.fdr5.cis.res[seq(3,length(names.fdr5.cis.res),6)],
-	diff.met.region=names.fdr5.cis.res[seq(6,length(names.fdr5.cis.res),6)]
-)
-rownames(fdr5.cis.res)=NULL
-fdr5.cis.res.with.annot<-cbind(annot.fdr5.cis.res,fdr5.cis.res)
-fdr5.cis.res.with.annot
+```{r table cis wilc fdr 5%, echo=TRUE}
 
+if ( sum(p.adjust(wilcoxon.as.cis.reg.by.mbd.result$p.value,method = 'BH')<0.05)>0 )
+{
+	fdr5.cis.res<-wilcoxon.as.cis.reg.by.mbd.result[which(p.adjust(wilcoxon.as.cis.reg.by.mbd.result$p.value,method = 'BH')<0.05),]
+	names.fdr5.cis.res<-unlist(strsplit(rownames(fdr5.cis.res),"[@.~]"))
+	#as@FAT1.chr4:187539578-187630378~dm@FAT1.chr4:187519279-187521052
+	annot.fdr5.cis.res<-data.frame(
+		gene=names.fdr5.cis.res[seq(2,length(names.fdr5.cis.res),6)],
+		alt.splice.region=names.fdr5.cis.res[seq(3,length(names.fdr5.cis.res),6)],
+		diff.met.region=names.fdr5.cis.res[seq(6,length(names.fdr5.cis.res),6)]
+	)
+	rownames(fdr5.cis.res)=NULL
+	fdr5.cis.res.with.annot<-cbind(annot.fdr5.cis.res,fdr5.cis.res)
+	fdr5.cis.res.with.annot
+} else print('..empty..')
 ```
 
+Again, let's look at gene with wilcoxon p.value<1e-6
+
+```{r table cis p<1e-6}
+wilcoxon.as.cis.reg.by.mbd.result[wilcoxon.as.cis.reg.by.mbd.result$p.value < 1e-6,]
+
+```
+###Kendall rank correlation
 
 <!--
 
