@@ -102,18 +102,18 @@ if((!noodles.as.genes.tables.loaded) && file.exists('noodles.as.genes.tables.Rda
 
 if(!noodles.as.genes.tables.loaded)
 {
-	noodlen<-500
-	expand<-10 #noodles
+	noodlen<-1000
+	expand<-1 #noodles
 	as.genes.noodles.ranges<-unlist(GRangesList(lapply(as.genes.symbols,function(gene) {
-		print(gene)
+		message(gene)
 		currentgenename<-gene
 		if(gene=='MIR143HG') currentgenename<-'CARMN'
 		if(gene=='LRRC48') currentgenename<-'DRC3'
 		if(gene=='UTP11L') currentgenename<-'UTP11'
-		entrez<-invisible(suppressWarnings(select(org.Hs.eg.db,keys=c(currentgenename),columns=c('ENTREZID'),keytype='SYMBOL')$ENTREZID))
-		gene.start<-invisible(suppressWarnings(min(select(TxDb.Hsapiens.UCSC.hg19.knownGene,keys=c(entrez),keytype='GENEID',columns=c('TXSTART'))$TXSTART)))
-		gene.end<-invisible(suppressWarnings(max(select(TxDb.Hsapiens.UCSC.hg19.knownGene,keys=c(entrez),keytype='GENEID',columns=c('TXEND'))$TXEND)))
-		gene.chr<-invisible(suppressWarnings(select(TxDb.Hsapiens.UCSC.hg19.knownGene,keys=c(entrez),keytype='GENEID',columns=c('TXCHROM'))$TXCHROM))
+		entrez<-suppressWarnings(select(org.Hs.eg.db,keys=c(currentgenename),columns=c('ENTREZID'),keytype='SYMBOL')$ENTREZID)
+		gene.start<-suppressWarnings(min(select(TxDb.Hsapiens.UCSC.hg19.knownGene,keys=c(entrez),keytype='GENEID',columns=c('TXSTART'))$TXSTART))
+		gene.end<-suppressWarnings(max(select(TxDb.Hsapiens.UCSC.hg19.knownGene,keys=c(entrez),keytype='GENEID',columns=c('TXEND'))$TXEND))
+		gene.chr<-suppressWarnings(select(TxDb.Hsapiens.UCSC.hg19.knownGene,keys=c(entrez),keytype='GENEID',columns=c('TXCHROM'))$TXCHROM)
 		noodstart<-gene.start-(gene.start %% noodlen) - expand*noodlen
 		noodend<-gene.end-(gene.end %% noodlen)+(expand+1)*noodlen
 		gene.noodles<-data.frame('chr'=gene.chr,'start'=seq(noodstart,noodend-noodlen,noodlen),'end'=seq(noodstart+noodlen-1,noodend,noodlen))

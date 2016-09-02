@@ -249,24 +249,25 @@ if(!wilcoxon.as.cis.reg.by.mbd.result.loaded)
 	message('done\n')
 }
 
-as.by.mbd.cisreg.reliable.pval<-wilcoxon.as.cis.reg.by.mbd.result$p.value
-
 ```
 
-Here is the table for all cis juntion-interations that pass FDR 5%
+Here is the table for all cis juntion-interations that pass FDR 10%
 
 ```{r table cis fdr 5%, echo=TRUE}
-fdr5.cis.res<-wilcoxon.as.cis.reg.by.mbd.result[which(p.adjust(wilcoxon.as.cis.reg.by.mbd.result$p.value,method = 'BH')<0.05),]
-names.fdr5.cis.res<-unlist(strsplit(rownames(fdr5.cis.res),"[@.~]"))
+fdr10.cis.res<-wilcoxon.as.cis.reg.by.mbd.result[which(p.adjust(wilcoxon.as.cis.reg.by.mbd.result$p.value,method = 'BH')<0.1),]
+
+#No result here :(
+
+#names.fdr10.cis.res<-unlist(strsplit(rownames(fdr10.cis.res),"[@.~]"))
 #as@FAT1.chr4:187539578-187630378~dm@FAT1.chr4:187519279-187521052
-annot.fdr5.cis.res<-data.frame(
-	gene=names.fdr5.cis.res[seq(2,length(names.fdr5.cis.res),6)],
-	alt.splice.region=names.fdr5.cis.res[seq(3,length(names.fdr5.cis.res),6)],
-	diff.met.region=names.fdr5.cis.res[seq(6,length(names.fdr5.cis.res),6)]
-)
-rownames(fdr5.cis.res)=NULL
-fdr5.cis.res.with.annot<-cbind(annot.fdr5.cis.res,fdr5.cis.res)
-fdr5.cis.res.with.annot
+#annot.fdr5.cis.res<-data.frame(
+#	gene=names.fdr5.cis.res[seq(2,length(names.fdr5.cis.res),6)],
+#	alt.splice.region=names.fdr5.cis.res[seq(3,length(names.fdr5.cis.res),6)],
+#	diff.met.region=names.fdr5.cis.res[seq(6,length(names.fdr5.cis.res),6)]
+#)
+#rownames(fdr10.cis.res)=NULL
+#fdr5.cis.res.with.annot<-cbind(annot.fdr10.cis.res,fdr10.cis.res)
+#fdr5.cis.res.with.annot
 
 ```
 
@@ -278,7 +279,7 @@ fdr5.cis.res.with.annot
 
 Actually, we do the same as in prevuious story, but we look not only for same-junction regulation (self-regulation) but for all same-gene junctions.
 
-```{r prepare cisregulation}
+```{r prepare cisregulationj}
 
 genes<-unique(sapply(strsplit(names(as.junction.ranges),'.',fixed = TRUE),'[',1))
 
@@ -351,7 +352,7 @@ as.by.mbd.cisreg.reliable.pval<-wilcoxon.as.cis.reg.by.mbd.result$p.value
 
 Here is the table for all cis juntion-interations that pass FDR 5%
 
-```{r table cis fdr 5%, echo=TRUE}
+```{r tablej cis fdr 5%, echo=TRUE}
 fdr5.cis.res<-wilcoxon.as.cis.reg.by.mbd.result[which(p.adjust(wilcoxon.as.cis.reg.by.mbd.result$p.value,method = 'BH')<0.05),]
 names.fdr5.cis.res<-unlist(strsplit(rownames(fdr5.cis.res),"[@.~]"))
 #as@FAT1.chr4:187539578-187630378~dm@FAT1.chr4:187519279-187521052
