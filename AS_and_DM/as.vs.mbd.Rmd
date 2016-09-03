@@ -247,7 +247,7 @@ if(!wilcoxon.as.cis.reg.by.mbd.result.loaded)
 
 Here is the table for all _cis_ juntion-interations that have Wilcoxon pass FDR 5%
 
-```{r table cis wilc fdr 5%, echo=TRUE}
+```{r table cis wilcoxon fdr 5%, echo=TRUE}
 
 if ( sum(p.adjust(wilcoxon.as.cis.reg.by.mbd.result$p.value,method = 'BH')<0.05)>0 )
 {
@@ -267,11 +267,80 @@ if ( sum(p.adjust(wilcoxon.as.cis.reg.by.mbd.result$p.value,method = 'BH')<0.05)
 
 Again, let's look at gene with wilcoxon p.value<1e-6
 
-```{r table cis p<1e-6}
+```{r table wilcoxon cis p<1e-6}
 wilcoxon.as.cis.reg.by.mbd.result[wilcoxon.as.cis.reg.by.mbd.result$p.value < 1e-6,]
 
 ```
 ###Kendall rank correlation
+
+```{r prepare kendall cisregulation}
+
+genes<-unique(sapply(strsplit(names(as.junction.ranges),'.',fixed = TRUE),'[',1))
+
+kendall.as.cis.reg.by.mbd.result.loaded<-FALSE
+if ('kendall.as.cis.reg.by.mbd.result' %in% ls() &&
+class(kendall.as.cis.reg.by.mbd.result)=='data.frame')
+kendall.as.cis.reg.by.mbd.result.loaded<-TRUE
+#if they are already in the space, do nothing
+
+if(
+	(! kendall.as.cis.reg.by.mbd.result.loaded) && 
+	file.exists('kendall.as.cis.reg.by.mbd.result.Rda') &&
+	'kendall.as.cis.reg.by.mbd.result' %in% load('kendall.as.cis.reg.by.mbd.result.Rda') &&
+	class(kendall.as.cis.reg.by.mbd.result)=='data.frame')
+{
+	message('kendall cis result loaded...')
+	kendall.as.cis.reg.by.mbd.result.loaded<-TRUE
+}
+
+if(!kendall.as.cis.reg.by.mbd.result.loaded)
+{
+	message('create kendall cis result matrix')
+
+	kendall.as.cis.reg.by.mbd.result.mat<-matrix(nrow=0,ncol=3)
+
+	colnames(kendall.as.cis.reg.by.mbd.result.mat)<-
+			c('p.value','obs inv#','exp inv#') 
+	
+	message('fill cis kendall result matrix')
+	for (gene in genes)
+	{
+		#if(!gene==genes[2]) next
+		#testing mode
+		message(gene)
+		the.gene.junctions<-grep(gene,names(as.junction.ranges))
+		l<-length(the.gene.junctions)
+		the.gene.result.mat<-matrix(c(1,0),nrow=l^2,ncol=3,byrow=TRUE)
+		colnames(the.gene.result.mat)<-c('p.value','','exp inv#') 
+		for (i in 1:l)
+		{
+			meth<-mbd.as.junction.coverage[the.gene.junctions[i],does.mdb.has.match]
+			if(var(meth)==0) next
+			for (k in 1:l) 	
+			{
+				index<-(i-1)*l+k
+				ranks<-unlist(mcols(as.junction.ranges)[the.gene.junctions[k],mbd.to.rna.match[does.mdb.has.match]])
+				ken<-cor.test(meth,ranks,method = 'kendall')
+				#if(is.na(wilc$p.value)) next
+				the.gene.result.mat[index,1]<-ken$p.value	
+				the.gene.result.mat[index,2]<-ken$statistic
+			}
+		}
+		#in expand.grid, the second var is outer (slow), so first is k (as)
+		rownames(the.gene.result.mat)<-
+			apply(expand.grid(names(as.junction.ranges)[the.gene.junctions],names(as.junction.ranges)[the.gene.junctions]),1,
+				function(pair) paste0('as@',pair[1],'~dm@',pair[2]))
+		kendall.as.cis.reg.by.mbd.result.mat<-rbind(kendall.as.cis.reg.by.mbd.result.mat,the.gene.result.mat)
+	}
+	message('converting to dataframe')
+	kendall.as.cis.reg.by.mbd.result<-as.data.frame(kendall.as.cis.reg.by.mbd.result.mat)
+	save(file='kendall.as.cis.reg.by.mbd.result.Rda',list=c('kendall.as.cis.reg.by.mbd.result'))
+
+	message('done\n')
+}
+
+
+```
 
 <!--
 
