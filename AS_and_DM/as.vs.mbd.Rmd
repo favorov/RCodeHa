@@ -93,7 +93,7 @@ dm.reliable.report[,1:3]
 ```
 
 Here is the list of the genes (for reference)
-```{r genes list, echo=TRUE}
+```{r genes list DM, echo=TRUE}
 cat(unique(sapply(strsplit(names(as.junction.ranges[dm.reliable]),'.',fixed = TRUE),'[',1)))
 
 ```
@@ -297,10 +297,10 @@ if(!kendall.as.cis.reg.by.mbd.result.loaded)
 {
 	message('create kendall cis result matrix')
 
-	kendall.as.cis.reg.by.mbd.result.mat<-matrix(nrow=0,ncol=3)
+	kendall.as.cis.reg.by.mbd.result.mat<-matrix(nrow=0,ncol=2)
 
 	colnames(kendall.as.cis.reg.by.mbd.result.mat)<-
-			c('p.value','obs inv#','exp inv#') 
+			c('p.value','tau') 
 	
 	message('fill cis kendall result matrix')
 	for (gene in genes)
@@ -310,20 +310,22 @@ if(!kendall.as.cis.reg.by.mbd.result.loaded)
 		message(gene)
 		the.gene.junctions<-grep(gene,names(as.junction.ranges))
 		l<-length(the.gene.junctions)
-		the.gene.result.mat<-matrix(c(1,0),nrow=l^2,ncol=3,byrow=TRUE)
-		colnames(the.gene.result.mat)<-c('p.value','','exp inv#') 
+		the.gene.result.mat<-matrix(c(1,0),nrow=l^2,ncol=2,byrow=TRUE)
+		colnames(the.gene.result.mat)<-c('p.value','tau') 
 		for (i in 1:l)
 		{
 			meth<-mbd.as.junction.coverage[the.gene.junctions[i],does.mdb.has.match]
-			if(var(meth)==0) next
+			#if(var(meth)==0) next
 			for (k in 1:l) 	
 			{
 				index<-(i-1)*l+k
 				ranks<-unlist(mcols(as.junction.ranges)[the.gene.junctions[k],mbd.to.rna.match[does.mdb.has.match]])
-				ken<-cor.test(meth,ranks,method = 'kendall')
-				#if(is.na(wilc$p.value)) next
+				#if(var(ranks)==0) next
+				ken<-cor.test(jitter(ranks,factor = 0.00001),jitter(meth,factor = 0.00001),method='kendall')
+				#ken<-cor.test(meth,ranks,method = 'kendall')
+				if(is.na(ken$p.value)) next
 				the.gene.result.mat[index,1]<-ken$p.value	
-				the.gene.result.mat[index,2]<-ken$statistic
+				the.gene.result.mat[index,2]<-ken$estimate[[1]] #tau
 			}
 		}
 		#in expand.grid, the second var is outer (slow), so first is k (as)
@@ -339,6 +341,30 @@ if(!kendall.as.cis.reg.by.mbd.result.loaded)
 	message('done\n')
 }
 
+
+```
+
+Here is the list of the genes that carry pairs of junctions with $AS(Junction1)$ ~ $Meth(Junction2)$. We do not tell $Junction1$ == $Junction2$ from $Junction1$ != $Junction2$.
+
+```{r genes list AS vs M, echo=TRUE}
+
+cat(
+	unique(
+		sapply(
+			strsplit(
+				sapply(
+					strsplit(
+						rownames(kendall.as.cis.reg.by.mbd.result)[
+							which(
+								p.adjust(kendall.as.cis.reg.by.mbd.result$p.value,method = 'BH')<0.05)
+						],
+						'@',fixed=TRUE
+					),"[",2
+				),".",fixed=TRUE
+			),"[",1
+		)
+	)
+)
 
 ```
 
