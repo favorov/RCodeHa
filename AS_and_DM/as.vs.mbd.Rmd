@@ -10,7 +10,7 @@ output:
 <!-- cache is off, we save all the neccessary things in Rda -->
 ```{r init, echo=FALSE, message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo=FALSE,message=FALSE,cache=FALSE,warning=FALSE,error=FALSE)
-options(width=120)
+options(width=110)
 ```
 
 `r format(Sys.Date(), "%d %b %Y")` 
@@ -271,7 +271,9 @@ Again, let's look at gene with wilcoxon p.value<1e-6
 wilcoxon.as.cis.reg.by.mbd.result[wilcoxon.as.cis.reg.by.mbd.result$p.value < 1e-6,]
 
 ```
-###Kendall rank correlation
+###Kendall rank correlation: junction-to-junction is the same gene
+
+We test Kendall correlation between junction A's rank in splicing and junction B's methylation, juctions pairs are from the same gene from the diff-AS list. 
 
 ```{r prepare kendall cisregulation}
 
@@ -346,7 +348,7 @@ if(!kendall.as.cis.reg.by.mbd.result.loaded)
 
 Here is the list of the genes that carry pairs of junctions with $AS(Junction1)$ ~ $Meth(Junction2)$. We do not tell $Junction1$ == $Junction2$ from $Junction1$ != $Junction2$.
 
-```{r genes list AS vs M, echo=TRUE}
+```{r genes list AS vs M, echo=FALSE}
 
 cat(
 	unique(
