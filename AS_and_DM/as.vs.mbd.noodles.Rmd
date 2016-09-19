@@ -32,7 +32,7 @@ fisher.mbd.in.as.result.loaded<-FALSE
 if ('fisher.mbd.in.as.result' %in% ls() &&
 class(fisher.mbd.in.as.result)=='data.frame')
 fisher.mbd.in.as.result.loaded<-TRUE
-#if they are already in the space, do nothing
+#if the fisher results are already in the space, do nothing
 
 if(
 	(! fisher.mbd.in.as.result.loaded) && 
@@ -46,6 +46,7 @@ if(
 
 if(!fisher.mbd.in.as.result.loaded)
 {
+	#calculationg Fisher
 	mbd.contrast<-logical(length(mbd.sample.ids))
 	mbd.contrast[grep('HN',mbd.sample.ids)]<-TRUE
 
@@ -73,6 +74,7 @@ if(!fisher.mbd.in.as.result.loaded)
 		MY<-sum(aslogic & mbd.contrast)
 		MN<-sum(aslogic & revcontrast)
 		if (0==MN && 0==MY) next
+		#it is already filled with 1 by matrix()
 		fishres<-fishtabs[tab.fisher.row.no(mbd.tumor.no,mbd.norm.no,MY,MN),]
 		fisher.mbd.in.as.result.mat[rown,]<-fishres
 	}
@@ -84,7 +86,7 @@ if(!fisher.mbd.in.as.result.loaded)
 }
 
 ```
-The first test is quite simple. We take all the AS junctions and we perform exact Fisher test (Tumor,Normal)x(MBD signal presebce) for each of them. Then, we apply Bonferroni correction for number of AS junctions.
+The first test is quite simple. We take all the AS junctions and we perform exact Fisher test (Tumor,Normal)x(MBD signal presence) for each of them. Then, we apply Bonferroni correction for number of AS junctions.
 ```{r mbd.reliable, echo=TRUE}
 dm.reliable<-p.adjust(fisher.mbd.in.as.result[,1],method="bonferroni")<.05
 dm.reliable.report<-fisher.mbd.in.as.result[dm.reliable,]
@@ -103,8 +105,9 @@ DM regions are coordinated in the same gene. The difference can be in any direct
 # Are there any AS regions with rank that corresponds to the MBD signal presence locally?
 ### Here, we omit T/N classification
 
-We take junctions, one-by-one and test whether the methylation signal discriminate rannks by Wilcoxon test.
+We take junctions, one-by-one and test whether the methylation signal discriminate ranks by Wilcoxon test.
 First, we define the common set of samples in MBD and RNA.
+
 ```{r common samples, echo=TRUE}
 mbd.to.rna.match <- match(mbd.sample.ids,rna.sample.ids)
 does.mdb.has.match <- !is.na(mbd.to.rna.match)
@@ -168,14 +171,117 @@ And, the best selr-reg junctions (uncorrected p < 0.00005 looks good, but it is 
 names(as.junction.ranges)[which(p.adjust(as.by.mbd.selfreg.reliable.pval,method="none")<0.00005)]
 ```
 
-# Are there any AS regions with rank that corresponds to the _cis_ MBD signal presence?
+# Are there any AS regions with rank that corresponds (_cis_) to the MBD signal presence in a `r width(as.genes.noodles.ranges)[1]` region around the gene?
 ### Here, we omit T/N classification. 
 
-Actually, we do the same as in prevuious story, but we look not only for same-junction regulation (self-regulation) but for all same-gene junctions.
+Actually, we do the same as in prevuious story, but we look not only for same-junction regulation (self-regulation) but for all same-gene .
 
 ###Wilcoxon test
 
 ```{r prepare wilcoxon cisregulation}
+
+
+genes<-unique(sapply(strsplit(names(as.junction.ranges),'.',fixed = TRUE),'[',1))
+#the gene names as given by junction data, so if the names changed in new list, it will be
+#named as new(old) in as.genes.noodles.ranges and the neme in genes now is old
+
+
+wilcoxon.as.cis.reg.by.mbd.result.loaded<-FALSE
+if ('wilcoxon.as.cis.reg.by.mbd.result' %in% ls() &&
+class(wilcoxon.as.cis.reg.by.mbd.result)=='data.frame')
+wilcoxon.as.cis.reg.by.mbd.result.loaded<-TRUE
+#if they are already in the space, do nothing
+
+if(
+	(! wilcoxon.as.cis.reg.by.mbd.result.loaded) && 
+	file.exists('wilcoxon.as.cis.reg.by.mbd.result.Rda') &&
+	'wilcoxon.as.cis.reg.by.mbd.result' %in% load('wilcoxon.as.cis.reg.by.mbd.result.Rda') &&
+	class(wilcoxon.as.cis.reg.by.mbd.result)=='data.frame')
+{
+	message('Wilcoxon result loaded...')
+	wilcoxon.as.cis.reg.by.mbd.result.loaded<-TRUE
+}
+
+if(!wilcoxon.as.cis.reg.by.mbd.result.loaded)
+{
+	message('create result matrix')
+
+	wilcoxon.as.cis.reg.by.mbd.result.mat<-matrix(nrow=0,ncol=3)
+
+	colnames(wilcoxon.as.cis.reg.by.mbd.result.mat)<-
+			c('p.value','obs inv#','exp inv#') 
+	
+	message('fill cis result matrix')
+	for (gene in genes)
+	{
+		#if(!gene==genes[2]) next
+		#testing mode
+		message(gene)
+		the.gene.noodles<-grep(gene,names(as.genes.noodles.ranges))
+		the.gene.junctions<-grep(gene,names(as.junction.ranges))
+		ln<-length(the.gene.noodles)
+		lj<-length(the.gene.junctions)
+		the.gene.result.mat<-matrix(c(1,0,0),nrow=ln*lj,ncol=3,byrow=TRUE)
+		colnames(the.gene.result.mat)<-c('p.value','obs inv#','exp inv#') 
+		for (n in 1:ln)
+		{
+			is.meth<-as.logical(mbd.as.genes.noodles.coverage[the.gene.noodles[n],does.mdb.has.match])
+			if(!sum(is.meth) || !sum(!is.meth)) next
+			for (j in 1:lj) 	
+			{
+				index<-(n-1)*lj+j
+				ranks<-unlist(mcols(as.junction.ranges)[the.gene.junctions[j],mbd.to.rna.match[does.mdb.has.match]])
+				wilc<-wilcox.test(jitter(ranks,factor=0.001)~!(is.meth))
+				if(is.na(wilc$p.value)) next
+				the.gene.result.mat[index,1]<-wilc$p.value	
+				the.gene.result.mat[index,2]<-wilc$statistic
+				the.gene.result.mat[index,3]<-(sum(is.meth)*sum(!is.meth))/2
+			}
+		}
+		#in expand.grid, the second var is outer (slow), so first is n (as)
+		rownames(the.gene.result.mat)<-
+			apply(expand.grid(names(as.junction.ranges)[the.gene.junctions],names(as.genes.noodles.ranges)[the.gene.noodles]),1,
+				function(pair) paste0('as@',pair[1],'~dm@',pair[2]))
+		wilcoxon.as.cis.reg.by.mbd.result.mat<-rbind(wilcoxon.as.cis.reg.by.mbd.result.mat,the.gene.result.mat)
+	}
+	message('converting to dataframe')
+	wilcoxon.as.cis.reg.by.mbd.result<-as.data.frame(wilcoxon.as.cis.reg.by.mbd.result.mat)
+	save(file='wilcoxon.as.cis.reg.by.mbd.result.Rda',list=c('wilcoxon.as.cis.reg.by.mbd.result'))
+
+	message('done\n')
+}
+
+```
+
+Here is the table for all cis juntion-interations that pass FDR 10%
+
+```{r table cis fdr 5%, echo=TRUE}
+fdr10.cis.res<-wilcoxon.as.cis.reg.by.mbd.result[which(p.adjust(wilcoxon.as.cis.reg.by.mbd.result$p.value,method = 'BH')<0.1),]
+
+#No result here :(
+
+#names.fdr10.cis.res<-unlist(strsplit(rownames(fdr10.cis.res),"[@.~]"))
+#as@FAT1.chr4:187539578-187630378~dm@FAT1.chr4:187519279-187521052
+#annot.fdr5.cis.res<-data.frame(
+#	gene=names.fdr5.cis.res[seq(2,length(names.fdr5.cis.res),6)],
+#	alt.splice.region=names.fdr5.cis.res[seq(3,length(names.fdr5.cis.res),6)],
+#	diff.met.region=names.fdr5.cis.res[seq(6,length(names.fdr5.cis.res),6)]
+#)
+#rownames(fdr10.cis.res)=NULL
+#fdr5.cis.res.with.annot<-cbind(annot.fdr10.cis.res,fdr10.cis.res)
+#fdr5.cis.res.with.annot
+
+```
+
+
+<!--
+
+# Are there any AS regions with rank that corresponds (_cis_) to the MBD signal presence in other AS junction of the same gene?
+### Here, we omit T/N classification. 
+
+Actually, we do the same as in prevuious story, but we look not only for same-junction regulation (self-regulation) but for all same-gene junctions.
+
+```{r prepare cisregulationj}
 
 genes<-unique(sapply(strsplit(names(as.junction.ranges),'.',fixed = TRUE),'[',1))
 
@@ -247,6 +353,7 @@ if(!wilcoxon.as.cis.reg.by.mbd.result.loaded)
 
 Here is the table for all _cis_ juntion-interations that have Wilcoxon pass FDR 5%
 
+<<<<<<< HEAD:AS_and_DM/as.vs.mbd.Rmd
 ```{r table cis wilcoxon fdr 5%, echo=TRUE}
 
 if ( sum(p.adjust(wilcoxon.as.cis.reg.by.mbd.result$p.value,method = 'BH')<0.05)>0 )
@@ -269,6 +376,20 @@ Again, let's look at gene with wilcoxon p.value<1e-6
 
 ```{r table wilcoxon cis p<1e-6}
 wilcoxon.as.cis.reg.by.mbd.result[wilcoxon.as.cis.reg.by.mbd.result$p.value < 1e-6,]
+=======
+```{r tablej cis fdr 5%, echo=TRUE}
+fdr5.cis.res<-wilcoxon.as.cis.reg.by.mbd.result[which(p.adjust(wilcoxon.as.cis.reg.by.mbd.result$p.value,method = 'BH')<0.05),]
+names.fdr5.cis.res<-unlist(strsplit(rownames(fdr5.cis.res),"[@.~]"))
+#as@FAT1.chr4:187539578-187630378~dm@FAT1.chr4:187519279-187521052
+annot.fdr5.cis.res<-data.frame(
+	gene=names.fdr5.cis.res[seq(2,length(names.fdr5.cis.res),6)],
+	alt.splice.region=names.fdr5.cis.res[seq(3,length(names.fdr5.cis.res),6)],
+	diff.met.region=names.fdr5.cis.res[seq(6,length(names.fdr5.cis.res),6)]
+)
+rownames(fdr5.cis.res)=NULL
+fdr5.cis.res.with.annot<-cbind(annot.fdr5.cis.res,fdr5.cis.res)
+fdr5.cis.res.with.annot
+>>>>>>> noodles:AS_and_DM/as.vs.mbd.noodles.Rmd
 
 ```
 ###Kendall rank correlation: junction-to-junction is the same gene
@@ -370,7 +491,6 @@ cat(
 
 ```
 
-<!--
 
 Trash and bricks
 Let's check the DM status of these two junctions:
