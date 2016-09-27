@@ -85,15 +85,20 @@ if(!fisher.mbd.in.as.result.loaded)
 
 ```
 The first test is quite simple. We take all the AS junctions and we perform exact Fisher test (Tumor,Normal)x(MBD signal presebce) for each of them. Then, we apply Bonferroni correction for number of AS junctions.
-```{r mbd.reliable, echo=TRUE}
+```{r mbd.reliable}
 dm.reliable<-p.adjust(fisher.mbd.in.as.result[,1],method="bonferroni")<.05
 dm.reliable.report<-fisher.mbd.in.as.result[dm.reliable,]
 rownames(dm.reliable.report)<-names(as.junction.ranges)[dm.reliable]
-dm.reliable.report[,1:3]
+result<-t(sapply(strsplit(names(as.junction.ranges)[dm.reliable],".",fixed=TRUE),"[",c(1,2)))
+colnames(result)<-c('gene','region')
+result<-cbind(result,dm.reliable.report[,1:3])
+knitr::kable(result,row.names=FALSE)
+
+#knitr::kable(dm.reliable.report[,1:3],row.names=TRUE)
 ```
 
 Here is the list of the genes (for reference)
-```{r genes list DM, echo=TRUE}
+```{r genes list DM, echo=FALSE}
 cat(unique(sapply(strsplit(names(as.junction.ranges[dm.reliable]),'.',fixed = TRUE),'[',1)))
 
 ```
@@ -103,9 +108,10 @@ DM regions are coordinated in the same gene. The difference can be in any direct
 # Are there any AS regions with rank that corresponds to the MBD signal presence locally?
 ### Here, we omit T/N classification
 
-We take junctions, one-by-one and test whether the methylation signal discriminate ranks by Wilcoxon test.
+We take junctions, one-by-one and test whether the is methylation signal coverage correlates with ranks by Kendall _tau_ test.
+
 First, we define the common set of samples in MBD and RNA.
-```{r common samples, echo=TRUE}
+```{r common samples, echo=FALSE}
 mbd.to.rna.match <- match(mbd.sample.ids,rna.sample.ids)
 does.mdb.has.match <- !is.na(mbd.to.rna.match)
 mbd.sample.ids[does.mdb.has.match]
@@ -113,164 +119,89 @@ mbd.sample.ids[does.mdb.has.match]
 So, `r sum(does.mdb.has.match)` samples are common for `r length(mbd.sample.ids)` MBD samples and `r length(rna.sample.ids)` RNA samples.
 
 ```{r calculate selfreg mbd to as rank}
-wilcoxon.as.local.reg.by.mbd.result.loaded<-FALSE
-if ('wilcoxon.as.local.reg.by.mbd.result' %in% ls() &&
-class(wilcoxon.as.local.reg.by.mbd.result)=='data.frame')
-wilcoxon.as.local.reg.by.mbd.result.loaded<-TRUE
+kendall.as.local.reg.by.mbd.result.loaded<-FALSE
+if ('kendall.as.local.reg.by.mbd.result' %in% ls() &&
+class(kendall.as.local.reg.by.mbd.result)=='data.frame')
+kendall.as.local.reg.by.mbd.result.loaded<-TRUE
 #if they are already in the space, do nothing
 
 if(
-	(! wilcoxon.as.local.reg.by.mbd.result.loaded) && 
-	file.exists('wilcoxon.as.local.reg.by.mbd.result.Rda') &&
-	'wilcoxon.as.local.reg.by.mbd.result' %in% load('wilcoxon.as.local.reg.by.mbd.result.Rda') &&
-	class(wilcoxon.as.local.reg.by.mbd.result)=='data.frame')
+	(! kendall.as.local.reg.by.mbd.result.loaded) && 
+	file.exists('kendall.as.local.reg.by.mbd.result.Rda') &&
+	'kendall.as.local.reg.by.mbd.result' %in% load('kendall.as.local.reg.by.mbd.result.Rda') &&
+	class(kendall.as.local.reg.by.mbd.result)=='data.frame')
 {
 	message('result loaded...')
-	wilcoxon.as.local.reg.by.mbd.result.loaded<-TRUE
+	kendall.as.local.reg.by.mbd.result.loaded<-TRUE
 }
 
-if(!wilcoxon.as.local.reg.by.mbd.result.loaded)
+if(!kendall.as.local.reg.by.mbd.result.loaded)
 {
 	message('create result matrix')
 
-	wilcoxon.as.local.reg.by.mbd.result.mat<-matrix(c(1,0,0),nrow=tests.number,ncol=3,byrow=TRUE)
+	kendall.as.local.reg.by.mbd.result.mat<-matrix(c(1,0),nrow=tests.number,ncol=2,byrow=TRUE)
 
-	colnames(wilcoxon.as.local.reg.by.mbd.result.mat)<-
-			c('p.value','obs inv#','exp inv#') 
+	colnames(kendall.as.local.reg.by.mbd.result.mat)<-
+			c('p.value','tau') 
 	
 	report.every<-tests.number %/% 100
 	message('fill result matrix')
 	for (rown in 1:tests.number) 	
 	{
 		if (!(rown %% report.every)) message(rown)
-		is.meth<-as.logical(mbd.as.junction.coverage[rown,does.mdb.has.match])
-		if(!sum(is.meth) || !sum(!is.meth)) next
+		meth<-mbd.as.junction.coverage[rown,does.mdb.has.match]
+		if(!sum(meth)) next
 		ranks<-unlist(mcols(as.junction.ranges)[rown,mbd.to.rna.match[does.mdb.has.match]])
-		wilc<-wilcox.test(jitter(ranks,factor=0.001)~!(is.meth))
-		if(is.na(wilc$p.value)) next
-		wilcoxon.as.local.reg.by.mbd.result.mat[rown,1]<-wilc$p.value	
-		wilcoxon.as.local.reg.by.mbd.result.mat[rown,2]<-wilc$statistic
-		wilcoxon.as.local.reg.by.mbd.result.mat[rown,3]<-(sum(is.meth)*sum(!is.meth))/2
+		ken<-cor.test(jitter(ranks,factor = 0.00001),jitter(meth,factor = 0.00001),method='kendall')
+		if(is.na(ken$p.value)) next
+		kendall.as.local.reg.by.mbd.result.mat[rown,1]<-ken$p.value	
+		kendall.as.local.reg.by.mbd.result.mat[rown,2]<-ken$estimate[[1]] #tau
 	}
 	message('converting to dataframe')
-	wilcoxon.as.local.reg.by.mbd.result<-as.data.frame(wilcoxon.as.local.reg.by.mbd.result.mat)
-	save(file='wilcoxon.as.local.reg.by.mbd.result.Rda',list=c('wilcoxon.as.local.reg.by.mbd.result'))
+	kendall.as.local.reg.by.mbd.result<-as.data.frame(kendall.as.local.reg.by.mbd.result.mat)
+	colnames(kendall.as.local.reg.by.mbd.result)<-c('p.value','tau')
+	save(file='kendall.as.local.reg.by.mbd.result.Rda',list=c('kendall.as.local.reg.by.mbd.result'))
 
 	message('done\n')
 }
 
-as.by.mbd.selfreg.reliable.pval<-wilcoxon.as.local.reg.by.mbd.result$p.value
-```
-Let's look what we have. The minimal p-value for the self-regulation is `r min(as.by.mbd.selfreg.reliable.pval)`. There are `r sum(p.adjust(as.by.mbd.selfreg.reliable.pval,method="bonferroni")<0.05)` p-calues passed Bofferromi for # of tests (junctions). There are `r sum(p.adjust(as.by.mbd.selfreg.reliable.pval,method="BH")<0.1)` passed Benjamini-Hoochberg with q-value<0.1 .
+as.by.mbd.selfreg.reliable.pval<-kendall.as.local.reg.by.mbd.result$p.value
 
-And, the best selr-reg junctions (uncorrected p < 0.00005 looks good, but it is killed by Bonferroni) are:
-```{r best selfreg, echo=TRUE}
-names(as.junction.ranges)[which(p.adjust(as.by.mbd.selfreg.reliable.pval,method="none")<0.00005)]
 ```
+
+```{r as.by.mbd.selfreg.reliable bonf set}
+set<-p.adjust(kendall.as.local.reg.by.mbd.result[,'p.value'],method="bonferroni")<0.05
+
+```
+
+Let's look what we have. There are `r sum(set)` p-calues passed Bofferromi for # of tests (junctions). 
+
+```{r as.by.mbd.selfreg.reliable bonf}
+result<-t(sapply(strsplit(names(as.junction.ranges)[set],".",fixed=TRUE),"[",c(1,2)))
+result<-cbind(result,kendall.as.local.reg.by.mbd.result[set,])
+colnames(result)<-c('gene','region','p.value','tau')
+knitr::kable(result,row.names=FALSE)
+```
+
+```{r as.by.mbd.selfreg.reliable bh set}
+set<-p.adjust(kendall.as.local.reg.by.mbd.result[,'p.value',],method="BH")<0.1
+
+```
+There are `r sum(set)` passed Benjamini-Hoochberg with q-value<0.1 .
+
+```{r as.by.mbd.selfreg.reliable bh}
+result<-t(sapply(strsplit(names(as.junction.ranges)[set],".",fixed=TRUE),"[",c(1,2)))
+result<-cbind(result,kendall.as.local.reg.by.mbd.result[set,])
+colnames(result)<-c('gene','region','p.value','tau')
+knitr::kable(result,row.names=FALSE)
+```
+
 
 # Are there any AS regions with rank that corresponds to the _cis_ MBD signal presence?
 ### Here, we omit T/N classification. 
 
 Actually, we do the same as in prevuious story, but we look not only for same-junction regulation (self-regulation) but for all same-gene junctions.
 
-###Wilcoxon test
-
-```{r prepare wilcoxon cisregulation}
-
-genes<-unique(sapply(strsplit(names(as.junction.ranges),'.',fixed = TRUE),'[',1))
-
-wilcoxon.as.cis.reg.by.mbd.result.loaded<-FALSE
-if ('wilcoxon.as.cis.reg.by.mbd.result' %in% ls() &&
-class(wilcoxon.as.cis.reg.by.mbd.result)=='data.frame')
-wilcoxon.as.cis.reg.by.mbd.result.loaded<-TRUE
-#if they are already in the space, do nothing
-
-if(
-	(! wilcoxon.as.cis.reg.by.mbd.result.loaded) && 
-	file.exists('wilcoxon.as.cis.reg.by.mbd.result.Rda') &&
-	'wilcoxon.as.cis.reg.by.mbd.result' %in% load('wilcoxon.as.cis.reg.by.mbd.result.Rda') &&
-	class(wilcoxon.as.cis.reg.by.mbd.result)=='data.frame')
-{
-	message('wilcoxon cis result loaded...')
-	wilcoxon.as.cis.reg.by.mbd.result.loaded<-TRUE
-}
-
-if(!wilcoxon.as.cis.reg.by.mbd.result.loaded)
-{
-	message('create wicloxon cis result matrix')
-
-	wilcoxon.as.cis.reg.by.mbd.result.mat<-matrix(nrow=0,ncol=3)
-
-	colnames(wilcoxon.as.cis.reg.by.mbd.result.mat)<-
-			c('p.value','obs inv#','exp inv#') 
-	
-	message('fill cis result matrix')
-	for (gene in genes)
-	{
-		#if(!gene==genes[2]) next
-		#testing mode
-		message(gene)
-		the.gene.junctions<-grep(gene,names(as.junction.ranges))
-		l<-length(the.gene.junctions)
-		the.gene.result.mat<-matrix(c(1,0,0),nrow=l^2,ncol=3,byrow=TRUE)
-		colnames(the.gene.result.mat)<-c('p.value','obs inv#','exp inv#') 
-		for (i in 1:l)
-		{
-			is.meth<-as.logical(mbd.as.junction.coverage[the.gene.junctions[i],does.mdb.has.match])
-			if(!sum(is.meth) || !sum(!is.meth)) next
-			for (k in 1:l) 	
-			{
-				index<-(i-1)*l+k
-				ranks<-unlist(mcols(as.junction.ranges)[the.gene.junctions[k],mbd.to.rna.match[does.mdb.has.match]])
-				wilc<-wilcox.test(jitter(ranks,factor=0.001)~!(is.meth))
-				if(is.na(wilc$p.value)) next
-				the.gene.result.mat[index,1]<-wilc$p.value	
-				the.gene.result.mat[index,2]<-wilc$statistic
-				the.gene.result.mat[index,3]<-(sum(is.meth)*sum(!is.meth))/2
-			}
-		}
-		#in expand.grid, the second var is outer (slow), so first is k (as)
-		rownames(the.gene.result.mat)<-
-			apply(expand.grid(names(as.junction.ranges)[the.gene.junctions],names(as.junction.ranges)[the.gene.junctions]),1,
-				function(pair) paste0('as@',pair[1],'~dm@',pair[2]))
-		wilcoxon.as.cis.reg.by.mbd.result.mat<-rbind(wilcoxon.as.cis.reg.by.mbd.result.mat,the.gene.result.mat)
-	}
-message('converting to dataframe')
-	wilcoxon.as.cis.reg.by.mbd.result<-as.data.frame(wilcoxon.as.cis.reg.by.mbd.result.mat)
-	save(file='wilcoxon.as.cis.reg.by.mbd.result.Rda',list=c('wilcoxon.as.cis.reg.by.mbd.result'))
-
-	message('done\n')
-}
-
-
-```
-
-Here is the table for all _cis_ juntion-interations that have Wilcoxon pass FDR 5%
-
-```{r table cis wilcoxon fdr 5%, echo=FALSE}
-
-if ( sum(p.adjust(wilcoxon.as.cis.reg.by.mbd.result$p.value,method = 'BH')<0.05)>0 )
-{
-	fdr5.cis.res<-wilcoxon.as.cis.reg.by.mbd.result[which(p.adjust(wilcoxon.as.cis.reg.by.mbd.result$p.value,method = 'BH')<0.05),]
-	names.fdr5.cis.res<-unlist(strsplit(rownames(fdr5.cis.res),"[@.~]"))
-	#as@FAT1.chr4:187539578-187630378~dm@FAT1.chr4:187519279-187521052
-	annot.fdr5.cis.res<-data.frame(
-		gene=names.fdr5.cis.res[seq(2,length(names.fdr5.cis.res),6)],
-		alt.splice.region=names.fdr5.cis.res[seq(3,length(names.fdr5.cis.res),6)],
-		diff.met.region=names.fdr5.cis.res[seq(6,length(names.fdr5.cis.res),6)]
-	)
-	rownames(fdr5.cis.res)=NULL
-	fdr5.cis.res.with.annot<-cbind(annot.fdr5.cis.res,fdr5.cis.res)
-	fdr5.cis.res.with.annot
-} else print('..empty..')
-```
-
-Again, let's look at gene with wilcoxon p.value<1e-6
-
-```{r table wilcoxon cis p<1e-6}
-wilcoxon.as.cis.reg.by.mbd.result[wilcoxon.as.cis.reg.by.mbd.result$p.value < 1e-6,]
-
-```
 ###Kendall rank correlation: junction-to-junction is the same gene
 
 We test Kendall correlation between junction A's rank in splicing and junction B's methylation, juctions pairs are from the same gene from the diff-AS list. 
@@ -369,6 +300,9 @@ cat(
 )
 
 ```
+```{r results AS vs M, echo=FALSE}
+```
+
 
 ### Kendall rank correlation: junction-rank-to-a-noodle-MBD is the same gene. Noodle is in a `r width(as.genes.noodles.ranges)[1]` region in or near the gene
 
@@ -382,32 +316,32 @@ cat(
 
 #mow, it is as.genes.symbols
 
-wilcoxon.as.cis.reg.by.mbd.result.loaded<-FALSE
-if ('wilcoxon.as.cis.reg.by.mbd.result' %in% ls() &&
-class(wilcoxon.as.cis.reg.by.mbd.result)=='data.frame')
-wilcoxon.as.cis.reg.by.mbd.result.loaded<-TRUE
+kendall.as.cis.reg.by.noodle.mbd.result.loaded<-FALSE
+if ('kendall.as.cis.reg.by.noodle.mbd.result' %in% ls() &&
+class(kendall.as.cis.reg.by.noodle.mbd.result)=='data.frame')
+kendall.as.cis.reg.by.noodle.mbd.result.loaded<-TRUE
 #if they are already in the space, do nothing
 
 if(
-	(! wilcoxon.as.cis.reg.by.mbd.result.loaded) && 
-	file.exists('wilcoxon.as.cis.reg.by.mbd.result.Rda') &&
-	'wilcoxon.as.cis.reg.by.mbd.result' %in% load('wilcoxon.as.cis.reg.by.mbd.result.Rda') &&
-	class(wilcoxon.as.cis.reg.by.mbd.result)=='data.frame')
+	(! kendall.as.cis.reg.by.noodle.mbd.result.loaded) && 
+	file.exists('kendall.as.cis.reg.by.noodle.mbd.result.Rda') &&
+	'kendall.as.cis.reg.by.noodle.mbd.result' %in% load('kendall.as.cis.reg.by.noodle.mbd.result.Rda') &&
+	class(kendall.as.cis.reg.by.noodle.mbd.result)=='data.frame')
 {
-	message('Wilcoxon result loaded...')
-	wilcoxon.as.cis.reg.by.mbd.result.loaded<-TRUE
+	message('Kendall noodle results loaded...')
+	kendall.as.cis.reg.by.noodle.mbd.result.loaded<-TRUE
 }
 
-if(!wilcoxon.as.cis.reg.by.mbd.result.loaded)
+if(!kendall.as.cis.reg.by.noodle.mbd.result.loaded)
 {
-	message('create result matrix')
+	message('create cis noodle result matrix')
 
-	wilcoxon.as.cis.reg.by.mbd.result.mat<-matrix(nrow=0,ncol=3)
+	kendall.as.cis.reg.by.noodle.mbd.result.mat<-matrix(nrow=0,ncol=2)
 
-	colnames(wilcoxon.as.cis.reg.by.mbd.result.mat)<-
-			c('p.value','obs inv#','exp inv#') 
+	colnames(kendall.as.cis.reg.by.noodle.mbd.result.mat)<-
+			c('p.value','tau') 
 	
-	message('fill cis result matrix')
+	message('fill cis noodle result matrix')
 	for (gene in genes)
 	{
 		#if(!gene==genes[2]) next
@@ -417,43 +351,42 @@ if(!wilcoxon.as.cis.reg.by.mbd.result.loaded)
 		the.gene.junctions<-grep(gene,names(as.junction.ranges))
 		ln<-length(the.gene.noodles)
 		lj<-length(the.gene.junctions)
-		the.gene.result.mat<-matrix(c(1,0,0),nrow=ln*lj,ncol=3,byrow=TRUE)
-		colnames(the.gene.result.mat)<-c('p.value','obs inv#','exp inv#') 
+		the.gene.result.mat<-matrix(c(1,0),nrow=ln*lj,ncol=2,byrow=TRUE)
+		colnames(the.gene.result.mat)<-c('p.value','tau') 
 		for (n in 1:ln)
 		{
-			is.meth<-as.logical(mbd.as.genes.noodles.coverage[the.gene.noodles[n],does.mdb.has.match])
-			if(!sum(is.meth) || !sum(!is.meth)) next
+			meth<-mbd.as.genes.noodles.coverage[the.gene.noodles[n],does.mdb.has.match]
+			if(var(meth)==0) next
 			for (j in 1:lj) 	
 			{
 				index<-(n-1)*lj+j
 				ranks<-unlist(mcols(as.junction.ranges)[the.gene.junctions[j],mbd.to.rna.match[does.mdb.has.match]])
-				wilc<-wilcox.test(jitter(ranks,factor=0.001)~!(is.meth))
-				if(is.na(wilc$p.value)) next
-				the.gene.result.mat[index,1]<-wilc$p.value	
-				the.gene.result.mat[index,2]<-wilc$statistic
-				the.gene.result.mat[index,3]<-(sum(is.meth)*sum(!is.meth))/2
+				ken<-cor.test(jitter(ranks,factor = 0.00001),jitter(meth,factor = 0.00001),method='kendall')
+				if(is.na(ken$p.value)) next
+				the.gene.result.mat[index,1]<-ken$p.value	
+				the.gene.result.mat[index,2]<-ken$estimate[[1]] #tau
 			}
 		}
 		#in expand.grid, the second var is outer (slow), so first is n (as)
 		rownames(the.gene.result.mat)<-
 			apply(expand.grid(names(as.junction.ranges)[the.gene.junctions],names(as.genes.noodles.ranges)[the.gene.noodles]),1,
 				function(pair) paste0('as@',pair[1],'~dm@',pair[2]))
-		wilcoxon.as.cis.reg.by.mbd.result.mat<-rbind(wilcoxon.as.cis.reg.by.mbd.result.mat,the.gene.result.mat)
+		kendall.as.cis.reg.by.noodle.mbd.result.mat<-rbind(kendall.as.cis.reg.by.noodle.mbd.result.mat,the.gene.result.mat)
 	}
 	message('converting to dataframe')
-	wilcoxon.as.cis.reg.by.mbd.result<-as.data.frame(wilcoxon.as.cis.reg.by.mbd.result.mat)
-	save(file='wilcoxon.as.cis.reg.by.mbd.result.Rda',list=c('wilcoxon.as.cis.reg.by.mbd.result'))
+	kendall.as.cis.reg.by.noodle.mbd.result<-as.data.frame(kendall.as.cis.reg.by.noodle.mbd.result.mat)
+	save(file='kendall.as.cis.reg.by.noodle.mbd.result.Rda',list=c('kendall.as.cis.reg.by.noodle.mbd.result'))
 
 	message('done\n')
 }
 
 ```
 
-Here is the table for all cis juntion-interations that pass FDR 10%
+Here is the table for all cis juntion-interations that pass FDR 5%
 
-```{r table cis fdr 10%, echo=TRUE}
-fdr10.cis.res<-wilcoxon.as.cis.reg.by.mbd.result[which(p.adjust(wilcoxon.as.cis.reg.by.mbd.result$p.value,method = 'BH')<0.1),]
-fdr10.cis.res
+```{r table cis moodle fdr 5%}
+fdr10.cis.noodle.res<-kendall.as.cis.reg.by.noodle.mbd.result[which(p.adjust(kendall.as.cis.reg.by.noodle.mbd.result$p.value,method = 'BH')<0.1),]
+knitr::kable(fdr5.cis.noodle.res,row.names=TRUE)
 ```
 
 <!-- Trash and bricks

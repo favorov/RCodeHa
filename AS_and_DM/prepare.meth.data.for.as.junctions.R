@@ -100,7 +100,15 @@ if((!noodles.as.genes.tables.loaded) && file.exists('noodles.as.genes.tables.Rda
 
 if(!noodles.as.genes.tables.loaded)
 {
-	noodlen<-1000
+	mbd.bed.dir<-'../../Methylation/bedfiles/'
+	chrs<-nucl.chromosomes.hg19()
+	mbd.bed.files<-dir(mbd.bed.dir) 
+	mbd.bed.files<-mbd.bed.files[grep('All_',mbd.bed.files,invert=TRUE)] # remove two 'All_' files
+	mbd.bed.ids<-sapply(strsplit(mbd.bed.files,split='_'),function(x){if(x[2]!='DNA') x[2] else x[3]}) #somhere id in pos 2, somewhere in 3
+	mbd.bed.ids<-sub('DNA','',mbd.bed.ids)
+	mbd.bed.ids<-sub('PT2','PT',mbd.bed.ids)
+	
+	noodlen<-10000
 	expand<-1 #noodles
 	as.genes.noodles.ranges<-unlist(GRangesList(lapply(as.genes.symbols,function(gene) {
 		message(gene)
