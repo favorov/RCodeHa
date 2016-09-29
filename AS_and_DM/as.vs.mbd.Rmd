@@ -277,7 +277,7 @@ if(!kendall.as.cis.reg.by.mbd.result.loaded)
 
 ```
 
-Here is the list of the genes that carry pairs of junctions with $AS(Junction1)$ ~ $Meth(Junction2)$. We do not tell $Junction1$ == $Junction2$ from $Junction1$ != $Junction2$.
+Here is the list of the genes that carry pairs of junctions with $AS(Junction1)$ ~ $Meth(Junction2)$ that pass FDR 5% (for pairs, not for genes). We do not tell $Junction1$ == $Junction2$ from $Junction1$ != $Junction2$.
 
 ```{r genes list AS vs M, echo=FALSE}
 
@@ -302,7 +302,7 @@ cat(
 
 ```
 
-This the list of correalted pairs:
+This the list of correlated pairs of junctions:
 ```{r results AS vs M, echo=FALSE}
 
 resultstat<-kendall.as.cis.reg.by.mbd.result[set,]
@@ -408,6 +408,53 @@ Here is the table for all cis juntion-interations that pass FDR 5%
 fdr5.cis.noodle.res<-kendall.as.cis.reg.by.noodle.mbd.result[which(p.adjust(kendall.as.cis.reg.by.noodle.mbd.result$p.value,method = 'BH')<0.05),]
 knitr::kable(fdr5.cis.noodle.res,row.names=TRUE)
 ```
+
+Here is the list of the genes that carry pairs of junctions with $AS(Junction)$ ~ $Meth(a noodle in gene)$ that pass FDR 5% (for pairs, not for genes).
+
+```{r genes list AS vs noodle M, echo=FALSE}
+
+set<-p.adjust(kendall.as.cis.reg.by.noodle.mbd.result[,'p.value'],method="BH")<0.05
+
+cat(
+	unique(
+		sapply(
+			strsplit(
+				sapply(
+					strsplit(
+						rownames(kendall.as.cis.reg.by.noodle.mbd.result)[
+							set
+						],
+						'@',fixed=TRUE
+					),"[",2
+				),".",fixed=TRUE
+			),"[",1
+		)
+	)
+)
+
+```
+
+This the list of correlated pairs of junction+noodle:
+```{r results AS vs noodle M, echo=FALSE}
+
+resultstat<-kendall.as.cis.reg.by.noodle.mbd.result[set,]
+resultnames<-t(sapply((strsplit(rownames(resultstat),'~')),
+				function(l)
+					{
+						pair<-substring(l,4)
+						tokens<-strsplit(pair,'.',fixed=TRUE)
+						gene<-tokens[[1]][1]
+						as<-tokens[[1]][2]
+						dm<-tokens[[2]][2]
+						c(gene,as,dm)
+					}
+		)
+)
+result<-cbind(resultnames,resultstat)
+colnames(result)<-c('gene','as region','dm noodle','p.value','tau')
+knitr::kable(result,row.names=FALSE)
+```
+
 
 <!-- Trash and bricks
 Let's check the DM status of these two junctions:
