@@ -137,7 +137,9 @@ if(
 
 if(!kendall.as.local.reg.by.mbd.result.loaded)
 {
-	message('create result matrix')
+	message('create local result matrix')
+	
+	set.seed(1248312)
 
 	kendall.as.local.reg.by.mbd.result.mat<-matrix(c(1,0),nrow=tests.number,ncol=2,byrow=TRUE)
 
@@ -235,6 +237,7 @@ if(!kendall.as.cis.reg.by.mbd.result.loaded)
 	colnames(kendall.as.cis.reg.by.mbd.result.mat)<-
 			c('p.value','tau') 
 	
+	set.seed(1248312)
 	message('fill cis kendall result matrix')
 	for (gene in genes)
 	{
@@ -319,7 +322,7 @@ resultnames<-t(sapply((strsplit(rownames(resultstat),'~')),
 		)
 )
 result<-cbind(resultnames,resultstat)
-colnames(result)<-c('gene','as region','dm region','p.value','tau')
+colnames(result)<-c('gene','as junction','dm junction','p.value','tau')
 knitr::kable(result,row.names=FALSE)
 ```
 
@@ -355,6 +358,7 @@ if(
 if(!kendall.as.cis.reg.by.noodle.mbd.result.loaded)
 {
 	message('create cis noodle result matrix')
+	set.seed(1248550)
 
 	kendall.as.cis.reg.by.noodle.mbd.result.mat<-matrix(nrow=0,ncol=2)
 
@@ -405,15 +409,15 @@ if(!kendall.as.cis.reg.by.noodle.mbd.result.loaded)
 Here is the table for all cis juntion-interations that pass FDR 5%
 
 ```{r table cis moodle fdr 5%}
-fdr5.cis.noodle.res<-kendall.as.cis.reg.by.noodle.mbd.result[which(p.adjust(kendall.as.cis.reg.by.noodle.mbd.result$p.value,method = 'BH')<0.05),]
+fdr5.cis.noodle.res<-kendall.as.cis.reg.by.noodle.mbd.result[which(p.adjust(kendall.as.cis.reg.by.noodle.mbd.result$p.value,method = 'BH')<0.1),]
 knitr::kable(fdr5.cis.noodle.res,row.names=TRUE)
 ```
 
-Here is the list of the genes that carry pairs of junctions with $AS(Junction)$ ~ $Meth(a noodle in gene)$ that pass FDR 5% (for pairs, not for genes).
+Here is the list of the genes that carry pairs of junctions with $AS(Junction)$ ~ $Meth(Noodle)$ that pass FDR 10% (for pairs, not for genes).
 
 ```{r genes list AS vs noodle M, echo=FALSE}
 
-set<-p.adjust(kendall.as.cis.reg.by.noodle.mbd.result[,'p.value'],method="BH")<0.05
+set<-p.adjust(kendall.as.cis.reg.by.noodle.mbd.result[,'p.value'],method="BH")<0.1
 
 cat(
 	unique(
@@ -451,7 +455,7 @@ resultnames<-t(sapply((strsplit(rownames(resultstat),'~')),
 		)
 )
 result<-cbind(resultnames,resultstat)
-colnames(result)<-c('gene','as region','dm noodle','p.value','tau')
+colnames(result)<-c('gene','as junction','dm noodle','p.value','tau')
 knitr::kable(result,row.names=FALSE)
 ```
 
