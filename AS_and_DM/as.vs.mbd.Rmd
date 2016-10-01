@@ -171,7 +171,9 @@ as.by.mbd.selfreg.reliable.pval<-kendall.as.local.reg.by.mbd.result$p.value
 
 ```
 
+
 ```{r as.by.mbd.selfreg.reliable bonf set}
+
 set<-p.adjust(kendall.as.local.reg.by.mbd.result[,'p.value'],method="bonferroni")<0.05
 
 ```
@@ -280,11 +282,14 @@ if(!kendall.as.cis.reg.by.mbd.result.loaded)
 
 ```
 
-Here is the list of the genes that carry pairs of junctions with $AS(Junction1)$ ~ $Meth(Junction2)$ that pass FDR 5% (for pairs, not for genes). We do not tell $Junction1$ == $Junction2$ from $Junction1$ != $Junction2$.
+```{r genes list AS vs M set, echo=FALSE}
+bhtresh<-0.05
+set<-p.adjust(kendall.as.cis.reg.by.mbd.result[,'p.value'],method="BH")<bhtresh
+```
+
+Here is the list of the genes that carry pairs of junctions with $AS(Junction1)$ ~ $Meth(Junction2)$ that pass FDR `r bhtresh*100`% (for pairs, not for genes). We do not tell $Junction1$ == $Junction2$ from $Junction1$ != $Junction2$.
 
 ```{r genes list AS vs M, echo=FALSE}
-
-set<-p.adjust(kendall.as.cis.reg.by.mbd.result[,'p.value'],method="BH")<0.05
 
 cat(
 	unique(
@@ -406,18 +411,14 @@ if(!kendall.as.cis.reg.by.noodle.mbd.result.loaded)
 
 ```
 
-Here is the table for all cis juntion-interations that pass FDR 5%
-
-```{r table cis moodle fdr 5%}
-fdr5.cis.noodle.res<-kendall.as.cis.reg.by.noodle.mbd.result[which(p.adjust(kendall.as.cis.reg.by.noodle.mbd.result$p.value,method = 'BH')<0.1),]
-knitr::kable(fdr5.cis.noodle.res,row.names=TRUE)
+```{r genes list AS vs noodle M set, echo=FALSE}
+bhtresh<-0.1
+set<-p.adjust(kendall.as.cis.reg.by.noodle.mbd.result[,'p.value'],method="BH")<bhtresh
 ```
 
-Here is the list of the genes that carry pairs of junctions with $AS(Junction)$ ~ $Meth(Noodle)$ that pass FDR 10% (for pairs, not for genes).
+Here is the list of the genes that carry pairs of junctions with $AS(Junction)$ ~ $Meth(Noodle)$ that pass FDR `r bhtresh*100`% (for pairs, not for genes).
 
 ```{r genes list AS vs noodle M, echo=FALSE}
-
-set<-p.adjust(kendall.as.cis.reg.by.noodle.mbd.result[,'p.value'],method="BH")<0.1
 
 cat(
 	unique(
