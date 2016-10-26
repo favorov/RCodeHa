@@ -28,7 +28,7 @@ if(!noodles.C.loaded)
 	beddir<-'../../../../Methylation/bedfiles/'
 	noodle.length<-100
 	chrs<-nucl.chromosomes.hg19()
-	noodles.C<-prepare.uniform.noodles(chrs,noodle.length)
+	noodles.C<-prepare.covering.noodles(chrs,noodle.length)
 	bedfiles<-dir(beddir) 
 	bedfiles<-bedfiles[grep('All_',bedfiles,invert=TRUE)] # remove two 'All_' files
 	bed.ids<-sapply(strsplit(bedfiles,split='_'),function(x){if(x[2]!='DNA') x[2] else x[3]}) #somhere id in pos 2, somewhere in 3
