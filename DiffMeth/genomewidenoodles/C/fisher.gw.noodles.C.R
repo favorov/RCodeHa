@@ -3,8 +3,8 @@
 #combine: combiner workers-no (good for any parallel enviroment, including fork)
 #everuthing happens in current directory!
 
-noodle.lenght<-1000
-noodle.code<-'M'
+noodle.lenght<-100
+noodle.code<-'C'
 
 args <- commandArgs(trailingOnly = TRUE)
 
