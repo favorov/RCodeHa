@@ -8,4 +8,4 @@
 . /etc/profile.d/modules.sh
 
 module load sharedapps
-module load R/3.0.1
+module load r/3.0.1
