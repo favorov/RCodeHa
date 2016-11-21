@@ -4,4 +4,4 @@
 #$ -l mem_free=6G,h_vmem=12G
 
 
-module load r/3.3.1
+module load R/3.3.1
