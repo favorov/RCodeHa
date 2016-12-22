@@ -1,12 +1,11 @@
 ---
-title: "Comparing AS junctions and MBD methylation for ACC data"
+title: "Correlating AS junctions and MBD methylation for ACC data"
 author: "Alexander Favorov"
 output: 
  html_document:
   toc: false
 
 ---
-
 <!-- cache is off, we save all the neccessary things in Rda -->
 ```{r init, echo=FALSE, message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo=FALSE,message=FALSE,cache=FALSE,warning=FALSE,error=FALSE)
