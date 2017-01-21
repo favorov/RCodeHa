@@ -21,7 +21,7 @@ Here, we run an unsuperviser 100bp-probe genomwide differential methylation test
 
 <a href=./noodles.C.annotation.bonf.html>Here is the table in html format</a>
 
-<a download href=https://raw.githubusercontent.com/favorov/MethSeqCalifano/master/genomewidenoodles/C/noodles.C.annotation.bonf.tsv>Here is the table in tsv format, to be loaded to excel</a>
+<a download href=./noodles.C.annotation.bonf.tsv>Here is the table in tsv format, to be loaded to excel</a>
 
 In the table: 
 The DM CpG islands coords and the methylation status description; cytoband information; TSS near is the closest start of a HGNC gene (according to Ensemble coords as represented in Homo.sapiens and org.Hs.eg.db) to the island, position and strand are of the gene. Distance is the distance from the middle of the island to TSS, negative means that the island is in the upstream.
@@ -34,11 +34,11 @@ The last 10 columns are min,25%,median,75% and max quantiles for read counts in 
 
 <a href=./noodles.C.annotation.fdr.html>Here is the table in html format</a>
 
-<a download href=https://raw.githubusercontent.com/favorov/MethSeqCalifano/master/genomewidenoodles/C/noodles.C.annotation.fdr.tsv>Here is the table in tsv format, to be loaded to excel</a>
+<a download href=./noodles.C.annotation.fdr.tsv>Here is the table in tsv format, to be loaded to excel</a>
 
 ### The same for uncorrected p-value<0.05
 
-<a download href=https://raw.githubusercontent.com/favorov/MethSeqCalifano/master/genomewidenoodles/C/noodles.C.annotation.uncorr.tsv>Here is the table in tsv format, to be loaded to excel</a>
+<a download href=./noodles.C.annotation.uncorr.tsv>Here is the table in tsv format, to be loaded to excel</a>
 
 ### Technical info
 -------------------------------
