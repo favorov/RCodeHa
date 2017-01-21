@@ -1,16 +1,15 @@
-`r opts_chunk$set(echo=F,message=F,cache=F,warning=F)`
+---
+title: "ACC 100bp intervals differential methylation genomewide analysis"
+author: "Alexander Favorov"
+output: 
+ html_document:
+  toc: true 
+
+---
+
+`r knitr::opts_chunk$set(echo=F,message=F,cache=F,warning=F)`
 <!-- cache is off, we save all the neccessary things in Rda -->
 
-```{r load and calculate}
-data.folder<-'../../../Data'
-source('../../common/read_clinical.R')
-```
-
-Which C (100bp) noodles islands are differentially methylated in the `r clinFileName` data?
-========================================================
-
-Alexander Favorov  
------------------------------------------------
 
 ### `r format(Sys.Date(), "%d %b %Y")` 
 
@@ -39,15 +38,4 @@ The last 10 columns are min,25%,median,75% and max quantiles for read counts in 
 ### The same for uncorrected p-value<0.05
 
 <a download href=./noodles.C.annotation.uncorr.tsv>Here is the table in tsv format, to be loaded to excel</a>
-
-### Technical info
--------------------------------
-Clinical data file: `r clinFile`.
-
-Its size and modification time: 
-```{r file.info}
-file.info(clinFile)[,c('size','mtime')] 
-```
-Number of records is `r nrow(Clinical)`
-
 
