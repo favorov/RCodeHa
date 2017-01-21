@@ -11,28 +11,28 @@ if (!suppressWarnings(require('differential.coverage')))
 	library('differential.coverage')
 }
 
-#we output: DM.M.noodles.bonf.bed - for Bonferroni-corrected p-val<0.05
+#we output: DM.C.noodles.bonf.bed - for Bonferroni-corrected p-val<0.05
 #seqnames start end width strand p.value ishyper
 
-#DM.M.noodles.bonf.strict.bed - pure bed with the DM intervals for GREAT analysis
+#DM.C.noodles.bonf.strict.bed - pure bed with the DM intervals for GREAT analysis
 
-#DM.M.noodles.bonf.adjacent.genes.tsv genes overlapped (flanks, possibly) by DM noodles
+#DM.C.noodles.bonf.adjacent.genes.tsv genes overlapped (flanks, possibly) by DM noodles
 #seqnames	start	end	width	strand	gene_id	SYMBOL	ishyper	p.value
 
 #and, the same 3 files with fdr<0.1 instead of Bonferroni correction: 
-#DM.M.noodles.fdr.bed, DM.M.noodles.fdr.strict.bed, DM.M.noodles.fdr.adjacent.genes.tsv
+#DM.C.noodles.fdr.bed, DM.C.noodles.fdr.strict.bed, DM.C.noodles.fdr.adjacent.genes.tsv
 
 flanks<-10000
 
 noodles.C.loaded<-FALSE
-# we can the whole thing to noodles.M.Rda
+# we can the whole thing to noodles.C.Rda
 if(file.exists('noodles.C.Rda'))
 {
 	loaded<-load('noodles.C.Rda')
 	if ('noodles.C.methylation' %in% loaded) 
 		if (class(noodles.C.methylation)=='data.frame')
 			if ('noodles.C' %in% loaded)
-				if(class(noodles.M)=='GRanges')
+				if(class(noodles.C)=='GRanges')
 			noodles.C.loaded<-TRUE
 }
 if(!noodles.C.loaded)
@@ -56,7 +56,7 @@ message('all loaded')
 #bonferroni
 message('bonferroni')
 DM.C.noodles.indices<-which(p.adjust(fisher.noodles.C.result$fisher.p.values,method='bonferroni')<0.05)
-DM.C.noodles<-noodles.M[DM.C.noodles.indices]
+DM.C.noodles<-noodles.C[DM.C.noodles.indices]
 DM.C.noodles$p.value<-fisher.noodles.C.result$fisher.p.values[DM.C.noodles.indices]
 DM.C.noodles$ishyper<-fisher.noodles.C.result$CI_95_L[DM.C.noodles.indices]>1
 
@@ -101,7 +101,7 @@ write.table(DM.Genes.df,file='DM.C.noodles.bonf.adjacent.genes.1000000.tsv',sep=
 #fdr
 message('fdr')
 DM.C.noodles.indices<-which(p.adjust(fisher.noodles.C.result$fisher.p.values,method='fdr')<0.1)
-DM.C.noodles<-noodles.M[DM.C.noodles.indices]
+DM.C.noodles<-noodles.C[DM.C.noodles.indices]
 DM.C.noodles$p.value<-fisher.noodles.C.result$fisher.p.values[DM.C.noodles.indices]
 DM.C.noodles$ishyper<-fisher.noodles.C.result$CI_95_L[DM.C.noodles.indices]>1
 
