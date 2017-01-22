@@ -32,7 +32,7 @@ if(file.exists('noodles.C.Rda'))
 	if ('noodles.C.methylation' %in% loaded) 
 		if (class(noodles.C.methylation)=='data.frame')
 			if ('noodles.C' %in% loaded)
-				if(class(noodles.C)=='GRanges')
+				if(class(noodles.C)=='GenomicRanges')
 			noodles.C.loaded<-TRUE
 }
 if(!noodles.C.loaded)
