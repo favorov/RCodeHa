@@ -32,7 +32,7 @@ if(file.exists('noodles.C.Rda'))
 	if ('noodles.C.methylation' %in% loaded) 
 		if (class(noodles.C.methylation)=='dgCMatrix')
 			if ('noodles.C' %in% loaded)
-				if(class(noodles.C)=='GenomicRanges')
+				if(class(noodles.C)=='GRanges')
 			noodles.C.loaded<-TRUE
 }
 if(!noodles.C.loaded)
