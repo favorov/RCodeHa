@@ -65,7 +65,7 @@ generate.noodles.C.report<-function(report.set,#indices
 	message('Looking for closest genes')
 	closest.genes<-closest.gene.start.by.interval(report.noodles)
 
-	closest.genes.new<-closest.gene.start.by.interval()
+	#closest.genes.new<-closest.gene.start.by.interval()
 
 	report.frame<-cbind(report.frame,elementMetadata(closest.genes)[,c('closest.TSS','pos','dir','dist')])
 
