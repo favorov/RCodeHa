@@ -137,7 +137,7 @@ message('fdr/100 000 flanks')
 
 DM.Genes<-genes.with.TSS.covered(noodles=DM.C.noodles,flanks=100000)
 
-save(file='DM.Genes.FDR.100000.Rda',list=c('DM.genes'))
+save(file='DM.Genes.FDR.100000.Rda',list=c('DM.Genes'))
 
 DM.Genes.df<-as(DM.Genes,'data.frame')
 
