@@ -90,9 +90,42 @@ generate.noodles.C.report<-function(report.set,#indices
 	if(!no.html)
 	{
 		if(file.exists(htmlfilename)) {file.remove(htmlfilename)}
-
-		print(xtable(data.frame(report.frame),digits=c(0,0,0,0,8,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,2,2), display=c('d','s','d','d','g','f','f','f','f','f','s','s','s','s','s','d','s','d','s','s','s','f','f','f','f','f','f','f','f','f','f')), type="html", file=htmlfilename, include.rownames=FALSE)
-#digits and display are to be +1 because of rows# that we do not print
+		print(
+			xtable
+				(
+					data.frame(report.frame),
+					digits=
+						c(
+							0,#rowname(hidden)
+							0,#chr
+							0,0,#start,end
+							8,#p-val
+							2,2,2,2,2,#five ratios
+							0,#TSS
+							0,#pos
+							0,0,0,#3 strings
+							0, #pos 
+							0 #dir
+						), 
+					display=
+						c(
+							's',#rowname(hidden)
+							's',#chr
+							'd','d',#start,end
+							'g',#p-val
+							'f','f','f','f','f',#five ratios
+							's',#TSS
+							'd',#pos
+							's','s','s',#3 strings
+							'd', #pos 
+							's' #dir
+						)
+				),
+			type="html",
+			file=htmlfilename, 
+			include.rownames=FALSE
+		)
+	#digits and display are to be +1 because of rows# that we do not print
 	}
 }
 
