@@ -62,13 +62,13 @@ DM.C.noodles$ishyper<-fisher.noodles.C.result$CI_95_L[DM.C.noodles.indices]>1
 
 DM.Genes<-genes.with.TSS.covered(noodles=DM.C.noodles,flanks=flanks)
 
-DM.Genes.df<-as(DM.Genes,'data.frame')
+DM.Genes.df<-data.frame(DM.Genes)
 
 DM.Genes.df<-DM.Genes.df[order(DM.Genes.df$seqnames,DM.Genes.df$start),]
 
 write.table(DM.Genes.df,file='DM.C.noodles.bonf.adjacent.genes.tsv',sep='\t',row.names=FALSE,quote=FALSE)
 
-DM.C.table<-as(DM.C.noodles,'data.frame')
+DM.C.table<-data.frame(DM.C.noodles)
 
 write.table(DM.C.table,file='DM.C.noodles.bonf.bed',quote=FALSE,row.names=FALSE)
 
@@ -81,7 +81,7 @@ message('bonferroni,flanks 100000')
 
 DM.Genes<-genes.with.TSS.covered(noodles=DM.C.noodles,flanks=100000)
 
-DM.Genes.df<-as(DM.Genes,'data.frame')
+DM.Genes.df<-data.frame(DM.Genes)
 
 DM.Genes.df<-DM.Genes.df[order(DM.Genes.df$seqnames,DM.Genes.df$start),]
 
@@ -92,7 +92,7 @@ message('bonferroni,flanks 1000000')
 
 DM.Genes<-genes.with.TSS.covered(noodles=DM.C.noodles,flanks=1000000)
 
-DM.Genes.df<-as(DM.Genes,'data.frame')
+DM.Genes.df<-data.frame(DM.Genes)
 
 DM.Genes.df<-DM.Genes.df[order(DM.Genes.df$seqnames,DM.Genes.df$start),]
 
@@ -107,13 +107,13 @@ DM.C.noodles$ishyper<-fisher.noodles.C.result$CI_95_L[DM.C.noodles.indices]>1
 
 DM.Genes<-genes.with.TSS.covered(noodles=DM.C.noodles,flanks=flanks)
 
-DM.Genes.df<-as(DM.Genes,'data.frame')
+DM.Genes.df<-data.frame(DM.Genes)
 
 DM.Genes.df<-DM.Genes.df[order(DM.Genes.df$seqnames,DM.Genes.df$start),]
 
 write.table(DM.Genes.df,file='DM.C.noodles.fdr.adjacent.genes.tsv',sep='\t',row.names=FALSE,quote=FALSE)
 
-DM.C.table<-as(DM.C.noodles,'data.frame')
+DM.C.table<-data.frame(DM.C.noodles)
 
 write.table(DM.C.table,file='DM.C.noodles.fdr.bed',quote=FALSE,row.names=FALSE)
 
@@ -126,7 +126,9 @@ message('fdr/no flanks')
 
 DM.Genes<-genes.with.TSS.covered(noodles=DM.C.noodles,flanks=0)
 
-DM.Genes.df<-as(DM.Genes,'data.frame')
+#DM.Genes.df<-as(DM.Genes,'data.frame')
+DM.Genes.df<-data.frame(DM.Genes)
+#the differnce is: as(..,'data.frame') uses column 1 as rownames, and they possibly can duplicate
 
 DM.Genes.df<-DM.Genes.df[order(DM.Genes.df$seqnames,DM.Genes.df$start),]
 
@@ -137,9 +139,10 @@ message('fdr/100 000 flanks')
 
 DM.Genes<-genes.with.TSS.covered(noodles=DM.C.noodles,flanks=100000)
 
-save(file='DM.Genes.FDR.100000.Rda',list=c('DM.Genes'))
+#save(file='DM.Genes.FDR.100000.Rda',list=c('DM.genes'))
+#debug
 
-DM.Genes.df<-as(DM.Genes,'data.frame')
+DM.Genes.df<-data.frame(DM.Genes)
 
 DM.Genes.df<-DM.Genes.df[order(DM.Genes.df$seqnames,DM.Genes.df$start),]
 
