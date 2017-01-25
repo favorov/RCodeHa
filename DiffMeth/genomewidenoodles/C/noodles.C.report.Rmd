@@ -15,27 +15,18 @@ output:
 
 Here, we run an unsuperviser 100bp-probe genomwide differential methylation test.
 
-### Here is the list of all differentially methylated (p<=0.05) C-noodles with Bonferroni correction
+### The list of all differentially methylated (p<=0.05) C-noodles with Bonferroni correction
 
+Here is <a href=./DM.C.noodles.bonf.strict.bed> strict BED file with the DM interval list</a> and the <a href=./DM.C.noodles.bonf.bed> bed file with p-values </a>. 
 
-<a href=./noodles.C.annotation.bonf.html>Here is the table in html format</a>
+The genes that TSS overlap with these intervals are summarised <a href=./DM.C.noodles.bonf.adjacent.genes.tsv>here</a>.
+Here are the lists of genes that TSS overlap with DM with expanding by <a href=./DM.C.noodles.bonf.adjacent.genes.100000.tsv>100000 bp</a> flanks and by <a href=./DM.C.noodles.bonf.adjacent.genes.1000000.tsv>1000000 bp</a> flanks.
 
-<a download href=./noodles.C.annotation.bonf.tsv>Here is the table in tsv format, to be loaded to excel</a>
+### The list of all differentially methylated (FDR<=0.1) C-noodles with FDR correction
 
-In the table: 
-The DM CpG islands coords and the methylation status description; cytoband information; TSS near is the closest start of a HGNC gene (according to Ensemble coords as represented in Homo.sapiens and org.Hs.eg.db) to the island, position and strand are of the gene. Distance is the distance from the middle of the island to TSS, negative means that the island is in the upstream.
-We show Fisher's p-values for each island as well as OR and the CI for OR.
-We also show all the HGNC's genes TSS that ovelap the island +- 7000 bp.
+Here is <a href=./DM.C.noodles.fdr.strict.bed> strict BED file with the DM interval list</a> and the <a href=./DM.C.noodles.fdr.bed> bed file with p-values </a>. 
 
-The last 10 columns are min,25%,median,75% and max quantiles for read counts in 700 bp area (+-300) of the read, for normal and for tumor samples.
+The genes that TSS overlap with these intervals are summarised <a href=./DM.C.noodles.fdr.adjacent.genes.tsv>here</a>.
+Here are the lists of genes that TSS overlap with DM with expanding by <a href=./DM.C.noodles.fdr.adjacent.genes.100000.tsv>100000 bp</a> flanks and by <a href=./DM.C.noodles.fdr.adjacent.genes.1000000.tsv>1000000 bp</a> flanks.
 
-### The same table for FDR<0.1
-
-<a href=./noodles.C.annotation.fdr.html>Here is the table in html format</a>
-
-<a download href=./noodles.C.annotation.fdr.tsv>Here is the table in tsv format, to be loaded to excel</a>
-
-### The same for uncorrected p-value<0.05
-
-<a download href=./noodles.C.annotation.uncorr.tsv>Here is the table in tsv format, to be loaded to excel</a>
 
