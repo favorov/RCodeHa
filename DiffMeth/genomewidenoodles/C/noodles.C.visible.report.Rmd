@@ -1,0 +1,38 @@
+---
+title: "ACC 100bp intervals differential methylation genomewide analysis, HNCSS project-style report"
+author: "Alexander Favorov"
+output: 
+ html_document:
+  toc: true 
+
+---
+`r opts_chunk$set(echo=F,message=F,cache=F,warning=F)`
+<!-- cache is off, we save all the neccessary things in Rda -->
+
+### `r format(Sys.Date(), "%d %b %Y")` 
+
+Here, we run an unsuperviser 100bp-probe genomwide differential methylation test.
+
+### Here is the list of all differentially methylated (p<=0.05) C-noodles with Bonferroni correction
+
+
+<a href=./noodles.C.annotation.bonf.html>Here is the table in html format</a>
+
+<a download href=./noodles.C.annotation.bonf.tsv>Here is the table in tsv format, to be loaded to excel</a>
+
+In the table: 
+The DM region (noodle) coords and the methylation status description; TSS near is the closest start of a HGNC gene (according to Ensemble coords as represented in Homo.sapiens and org.Hs.eg.db), position and strand are of the gene. Distance is the distance from the middle of the region to TSS, negative means that the region is in the upstream.
+We show Fisher's p-values for each island as well as OR and the CI for OR.
+We also show all the HGNC's genes TSS that ovelap the island +- 7000 bp.
+
+
+### The same table for FDR<0.1
+
+<a href=./noodles.C.annotation.fdr.html>Here is the table in html format</a>
+
+<a download href=./noodles.C.annotation.fdr.tsv>Here is the table in tsv format, to be loaded to excel</a>
+
+### The same for uncorrected p-value<0.05
+
+<a download href=./noodles.C.annotation.uncorr.tsv>Here is the table in tsv format, to be loaded to excel</a>
+
