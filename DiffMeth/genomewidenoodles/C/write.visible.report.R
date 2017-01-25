@@ -81,17 +81,6 @@ generate.noodles.C.report<-function(report.set,#indices
 
 	message('done')
 	
-	message('Normal read stats')
-
-	message('done')
-	
-	report.frame<-cbind(report.frame,data.frame(norm.read.stats.frame[report.set,]))
-	
-	message('Tumor read stats')
-	
-	report.frame<-cbind(report.frame,data.frame(tumor.read.stats.frame[report.set,]))
-
-	message('done')
 	#prepared
 	
 	save(file=paste0('noodles.C.annotation.',set.id,'.Rda'),list=c('report.frame'))
