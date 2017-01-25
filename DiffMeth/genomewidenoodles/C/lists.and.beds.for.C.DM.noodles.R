@@ -81,6 +81,8 @@ message('bonferroni,flanks 100000')
 
 DM.Genes<-genes.with.TSS.covered(noodles=DM.C.noodles,flanks=100000)
 
+save(file='DM.Genes.100000',list=c(DM.genes))
+
 DM.Genes.df<-as(DM.Genes,'data.frame')
 
 DM.Genes.df<-DM.Genes.df[order(DM.Genes.df$seqnames,DM.Genes.df$start),]
